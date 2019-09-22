@@ -100,10 +100,11 @@ exports.addUnstaged = async ({repositoryPath}) => {
   }));
 };
 
-exports.commit = ({repositoryPath}) => {
+exports.commit = ({repositoryPath, author}) => {
   return git.commit({
     dir: repositoryPath,
-    message: 'Updated deps or devDeps'
+    message: 'Updated deps or devDeps',
+    author
   });
 };
 

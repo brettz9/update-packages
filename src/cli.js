@@ -168,19 +168,41 @@ await Promise.all(
 
     // This is necessary per https://github.com/isomorphic-git/isomorphic-git/issues/236
     //   and https://github.com/isomorphic-git/isomorphic-git/issues/690
-    let globalGitAuthorInfo;
+    let globalGitAuthorName, globalGitAuthorEmail;
     try {
-      globalGitAuthorInfo = await getGlobalGitAuthorInfo();
+      const globalGitAuthorInfo = await getGlobalGitAuthorInfo();
+      try {
+        ({name: globalGitAuthorName, email: globalGitAuthorEmail} =
+          globalGitAuthorInfo.user);
+      } catch (err) {
+        throw new Error('No user info (for name and email) in global config');
+      }
       console.log('globalGitAuthorInfo', globalGitAuthorInfo);
     } catch (err) {
-      console.log('Error getting global Git author info; trying Git repo...');
+      console.log(
+        'Error getting global Git author info; trying Git repo...',
+        err
+      );
     }
 
     try {
       await commit({repositoryPath});
     } catch (err) {
-      console.log('Error committing', repositoryPath, err);
-      return;
+      if (!globalGitAuthorName || !globalGitAuthorEmail) {
+        console.log('Error committing', repositoryPath, err);
+        return;
+      }
+      try {
+        await commit({repositoryPath, author: {
+          name: globalGitAuthorName,
+          email: globalGitAuthorEmail
+        }});
+      } catch (error) {
+        console.log(
+          'Error committing with global credentials', repositoryPath, error
+        );
+        return;
+      }
     }
 
     let remotes;
@@ -197,6 +219,7 @@ await Promise.all(
     // Todo: https://isomorphic-git.org/docs/en/authentication.html
     const {token} = options;
 
+    // Todo: Only push to `origin` by default
     await Promise.all(
       remotes.map(async (remoteName) => {
         let pushed;
