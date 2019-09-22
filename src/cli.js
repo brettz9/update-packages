@@ -1,6 +1,6 @@
 'use strict';
 
-const {basename} = require('path');
+const {basename, dirname} = require('path');
 const os = require('os');
 
 const commandLineArgs = require('command-line-args');
@@ -55,7 +55,7 @@ const options = commandLineArgs([
 ]);
 
 (async () => {
-const basePath = os.homedir();
+const basePath = options.basePath || os.homedir();
 const branchName = 'master';
 
 let excludeRepositories = [], repositoriesToRemotes = {};
@@ -67,18 +67,20 @@ try {
   }
 } catch (err) {}
 
-const repos = await findGitRepos({basePath});
-const repositoryPaths = Object.keys(repos);
+const repositoryPaths = await findGitRepos({basePath});
 
 console.log('repositoryPaths', repositoryPaths);
-return;
 
 await Promise.all(
-  repositoryPaths.map(async (repositoryPath) => {
+  repositoryPaths.map((repoPath) => {
+    return dirname(repoPath);
+  }).map(async (repositoryPath) => {
     const repoFile = basename(repositoryPath);
     if (excludeRepositories.includes(repoFile)) {
       return;
     }
+
+    return;
 
     const upgraded = await processUpdates({...options});
     console.log('dependencies to upgrade:', upgraded);

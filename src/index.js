@@ -1,8 +1,9 @@
 'use strict';
 const fs = require('fs');
+
 const npm = require('npm');
 const git = require('isomorphic-git');
-const findGitRepos = require('find-git-repos');
+const glob = require('glob');
 
 git.plugins.set('fs', fs);
 
@@ -157,12 +158,14 @@ exports.test = ({args} = {}) => {
 exports.findGitRepos = ({basePath}) => {
   // eslint-disable-next-line promise/avoid-new
   return new Promise(function (resolve, reject) {
-    findGitRepos(basePath, (error, repos) => {
+    glob('**/.git', {
+      cwd: basePath
+    }, function (error, files) {
       if (error) {
         reject(error);
         return;
       }
-      resolve(repos);
+      resolve(files.map((file) => basePath + '/' + file));
     });
   });
 };
