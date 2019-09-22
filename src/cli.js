@@ -33,7 +33,7 @@ const options = commandLineArgs([
   {name: 'newest', type: Boolean, alias: 'n'},
   {name: 'packageData', type: Boolean},
   {name: 'packageFile', type: String},
-  {name: 'packageFileDir', type: Boolean},
+  // {name: 'packageFileDir', type: Boolean},
   {name: 'packageManager', type: String, alias: 'p'},
   {name: 'pre', type: Number},
   {name: 'registry', type: String, alias: 'r'},
@@ -43,7 +43,8 @@ const options = commandLineArgs([
   {name: 'semverLevel', type: Boolean},
   {name: 'silent', type: Boolean, alias: 's'},
   {name: 'timeout', type: Number},
-  {name: 'upgrade', type: Boolean, alias: 'u'},
+  // {name: 'upgrade', type: Boolean, alias: 'u'}, // We will upgrade
+
   // Not accessible programmatically?
   {name: 'version', type: Boolean, alias: 'v'},
 
@@ -53,7 +54,8 @@ const options = commandLineArgs([
   // Repos
   {name: 'repository', type: String, alias: 'y'},
   {name: 'basePath', type: String, alias: 'b'},
-  {name: 'configFile', type: String, alias: 'c'}
+  {name: 'configFile', type: String, alias: 'c'},
+  {name: 'dryRun', type: Boolean}
 ]);
 
 (async () => {
@@ -93,8 +95,19 @@ await Promise.all(
       return;
     }
 
-    const upgraded = await processUpdates({...options});
+    // We want `upgrade` disableable, so we use a new option
+    const upgrade = !options.dryRun;
+    console.log('upgrade', upgrade);
+    const upgraded = await processUpdates({
+      ...options,
+      packageFile: `${repositoryPath}/package.json`,
+      upgrade
+    });
+
     console.log('dependencies to upgrade:', upgraded);
+    if (!upgrade) {
+      return;
+    }
     return;
 
     await install({repositoryPath});

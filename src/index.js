@@ -28,7 +28,7 @@ exports.processUpdates = function ({
   newest, // = false
   packageData, // = false
   packageFile, // = './package.json'
-  packageFileDir, // = false
+  // packageFileDir, // = false
   packageManager, // = 'npm', // npm|bower
   pre, // 0|1
   registry, // (third party registry)
@@ -59,7 +59,7 @@ exports.processUpdates = function ({
     newest,
     packageData,
     packageFile,
-    packageFileDir,
+    // packageFileDir,
     packageManager,
     pre,
     registry,
