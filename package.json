@@ -6,6 +6,7 @@
   "scripts": {
     "eslint": "eslint --ext=js,md,html .",
     "lint": "npm run eslint",
+    "check": "node src/cli.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -47,6 +48,7 @@
     "typescript": "^3.6.2"
   },
   "dependencies": {
+    "command-line-args": "^5.1.1",
     "npm-check-updates": "^3.1.21"
   }
 }
