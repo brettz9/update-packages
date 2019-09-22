@@ -29,3 +29,4 @@
   as to regularly poll for security updates and upon encountering one which
   was in a cached map of dependencies, would attempt to commit an update
   to that repo.
+4. Catch deprecated warnings for outdated/renamed packages
