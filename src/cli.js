@@ -43,9 +43,10 @@ const options = commandLineArgs([
 const upgraded = await processUpdates(options);
 console.log('dependencies to upgrade:', upgraded);
 
-const remotes = await getRemotes();
+const repositoryPath = '/a/path';
+const remotes = await getRemotes({repositoryPath});
 
-// await switchBranch(repository, 'master');
+// await switchBranch({repositoryPath, branchName: 'master'});
 
 console.log('remotes', remotes);
 })();

@@ -66,13 +66,21 @@ exports.processUpdates = function ({
   });
 };
 
-exports.getRemotes = (repository) => {
+exports.getRemotes = async ({repositoryPath}) => {
+  const repository = await Git.Repository.open(repositoryPath);
   return Git.Remote.list(repository);
 };
 
-exports.switchBranch = async (repository, branchName) => {
+exports.switchBranch = async ({repositoryPath, branchName}) => {
+  const repository = await Git.Repository.open(repositoryPath);
   const reference = await repository.getBranch(
     'refs/remotes/origin/' + branchName
   );
   return repository.checkoutRef(reference);
+};
+
+exports.commit = async ({repositoryPath}) => {
+  const repository = await Git.Repository.open(repositoryPath);
+  // Todo: Finish
+  Git.Commit.create(repository);
 };

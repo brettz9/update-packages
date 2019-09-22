@@ -15,7 +15,7 @@
     or global npm audit config
   3. npm test
   4. git branch master
-  5. git commit -a -m "Upgrade"
+  5. git add . && git commit -a -m "Upgrade"
   6. git remote
   7. e.g., git push origin && git push upstream
 
