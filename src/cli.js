@@ -55,12 +55,13 @@ const options = commandLineArgs([
   {name: 'repository', type: String, alias: 'y'},
   {name: 'basePath', type: String, alias: 'b'},
   {name: 'configFile', type: String, alias: 'c'},
-  {name: 'dryRun', type: Boolean}
+  {name: 'dryRun', type: Boolean},
+  {name: 'branchName', type: String}
 ]);
 
 (async () => {
 const basePath = options.basePath || os.homedir();
-const branchName = 'master';
+const branchName = options.branchName || 'master';
 
 let excludeRepositories = [], repositoriesToRemotes = {};
 
@@ -98,6 +99,9 @@ await Promise.all(
     // We want `upgrade` disableable, so we use a new option
     const upgrade = !options.dryRun;
     console.log('upgrade', upgrade);
+    if (upgrade) {
+      await switchBranch({repositoryPath, branchName});
+    }
     const upgraded = await processUpdates({
       ...options,
       packageFile: `${repositoryPath}/package.json`,
@@ -108,9 +112,9 @@ await Promise.all(
     if (!upgrade) {
       return;
     }
-    return;
 
     await install({repositoryPath});
+    return;
 
     await audit({args: ['fix']});
 
@@ -118,8 +122,6 @@ await Promise.all(
 
     // Todo: https://isomorphic-git.org/docs/en/authentication.html
     const {token} = options;
-
-    await switchBranch({repositoryPath, branchName});
 
     await addUnstaged({repositoryPath});
     await commit({repositoryPath});
