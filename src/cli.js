@@ -177,7 +177,7 @@ await Promise.all(
       } catch (err) {
         throw new Error('No user info (for name and email) in global config');
       }
-      console.log('globalGitAuthorInfo', globalGitAuthorInfo);
+      // console.log('globalGitAuthorInfo', globalGitAuthorInfo);
     } catch (err) {
       console.log(
         'Error getting global Git author info; trying Git repo...',
