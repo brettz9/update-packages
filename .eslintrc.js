@@ -6,6 +6,7 @@ module.exports = {
   },
   settings: {
       polyfills: [
+        "Promise",
         "Promise.all"
       ]
   },

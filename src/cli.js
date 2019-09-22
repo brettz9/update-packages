@@ -2,6 +2,7 @@
 
 const commandLineArgs = require('command-line-args');
 const {
+  install, audit, test,
   processUpdates, getRemotes, switchBranch, addUnstaged, commit, push
 } = require('./index.js');
 
@@ -49,9 +50,15 @@ console.log('dependencies to upgrade:', upgraded);
 
 const repositoryPath = '/a/path';
 const branchName = 'master';
-const {token} = options;
+
+await install({repositoryPath});
+
+await audit({args: ['fix']});
+
+await test();
 
 // Todo: https://isomorphic-git.org/docs/en/authentication.html
+const {token} = options;
 
 await switchBranch({repositoryPath, branchName});
 

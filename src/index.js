@@ -1,5 +1,6 @@
 'use strict';
 const fs = require('fs');
+const npm = require('npm');
 const git = require('isomorphic-git');
 
 git.plugins.set('fs', fs);
@@ -108,5 +109,46 @@ exports.push = ({repositoryPath, remoteName, branchName, token}) => {
     remote: remoteName,
     ref: branchName,
     token
+  });
+};
+
+exports.install = ({where, args}) => {
+  // eslint-disable-next-line promise/avoid-new
+  return new Promise(function (resolve, reject) {
+    npm.install(where, args, (error) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve();
+    });
+  });
+};
+
+// fix; if problematic, use https://github.com/Vispercept/run-npm-audit ?
+// check user/global npm audit config
+exports.audit = ({args} = {}) => {
+  // eslint-disable-next-line promise/avoid-new
+  return new Promise(function (resolve, reject) {
+    npm.audit(args, (error) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve();
+    });
+  });
+};
+
+exports.test = ({args} = {}) => {
+  // eslint-disable-next-line promise/avoid-new
+  return new Promise(function (resolve, reject) {
+    npm.test(args, (error) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve();
+    });
   });
 };
