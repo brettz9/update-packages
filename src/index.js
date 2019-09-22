@@ -4,6 +4,8 @@ const {basename} = require('path');
 
 const npm = require('npm');
 const git = require('isomorphic-git');
+const parseGitConfig = require('parse-git-config');
+const getGitConfigPath = require('git-config-path');
 
 git.plugins.set('fs', fs);
 
@@ -209,4 +211,12 @@ exports.findGitRepos = ({basePath}) => {
       resolve(repoFiles);
     });
   });
+};
+
+exports.getGlobalGitAuthorInfo = async () => {
+  const globalGitConfigPath = getGitConfigPath('global');
+  const parsedConfig = await parseGitConfig({
+    path: globalGitConfigPath
+  });
+  return parsedConfig;
 };

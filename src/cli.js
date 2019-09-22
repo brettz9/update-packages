@@ -7,7 +7,7 @@ const commandLineArgs = require('command-line-args');
 
 const {
   install, audit, test,
-  findGitRepos,
+  findGitRepos, getGlobalGitAuthorInfo,
   processUpdates, getRemotes, switchBranch, addUnstaged, commit, push
 } = require('./index.js');
 
@@ -164,6 +164,16 @@ await Promise.all(
     } catch (err) {
       console.log('Error adding unstaged files', repositoryPath, err);
       return;
+    }
+
+    // This is necessary per https://github.com/isomorphic-git/isomorphic-git/issues/236
+    //   and https://github.com/isomorphic-git/isomorphic-git/issues/690
+    let globalGitAuthorInfo;
+    try {
+      globalGitAuthorInfo = await getGlobalGitAuthorInfo();
+      console.log('globalGitAuthorInfo', globalGitAuthorInfo);
+    } catch (err) {
+      console.log('Error getting global Git author info; trying Git repo...');
     }
 
     try {
