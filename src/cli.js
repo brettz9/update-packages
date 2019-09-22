@@ -120,9 +120,6 @@ await Promise.all(
 
     await test();
 
-    // Todo: https://isomorphic-git.org/docs/en/authentication.html
-    const {token} = options;
-
     await addUnstaged({repositoryPath});
     await commit({repositoryPath});
 
@@ -130,6 +127,9 @@ await Promise.all(
       await getRemotes({repositoryPath});
 
     console.log('remotes', remotes);
+
+    // Todo: https://isomorphic-git.org/docs/en/authentication.html
+    const {token} = options;
 
     await Promise.all(
       remotes.map((remoteName) => {

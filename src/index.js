@@ -114,15 +114,24 @@ exports.push = ({repositoryPath, remoteName, branchName, token}) => {
   });
 };
 
-exports.install = ({where, args}) => {
+exports.install = ({repositoryPath, args = []}) => {
   // eslint-disable-next-line promise/avoid-new
   return new Promise(function (resolve, reject) {
-    npm.install(where, args, (error) => {
-      if (error) {
-        reject(error);
+    npm.load({
+      // What "cli" config would go here?
+    // eslint-disable-next-line promise/prefer-await-to-callbacks
+    }, (err) => {
+      if (err) {
+        reject(err);
         return;
       }
-      resolve();
+      npm.commands.install(repositoryPath, args, (error) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve();
+      });
     });
   });
 };
