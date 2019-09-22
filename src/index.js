@@ -3,7 +3,6 @@ const fs = require('fs');
 
 const npm = require('npm');
 const git = require('isomorphic-git');
-const glob = require('glob');
 
 git.plugins.set('fs', fs);
 
@@ -158,14 +157,18 @@ exports.test = ({args} = {}) => {
 exports.findGitRepos = ({basePath}) => {
   // eslint-disable-next-line promise/avoid-new
   return new Promise(function (resolve, reject) {
-    glob('**/.git', {
-      cwd: basePath
-    }, function (error, files) {
+    // eslint-disable-next-line node/prefer-promises/fs
+    fs.readdir(basePath, (error, files) => {
       if (error) {
         reject(error);
         return;
       }
-      resolve(files.map((file) => basePath + '/' + file));
+      const repoFiles = files.filter((file) => {
+        return !file.startsWith('.') &&
+          // eslint-disable-next-line no-sync
+          fs.existsSync(basePath + '/' + file + '/.git');
+      });
+      resolve(repoFiles);
     });
   });
 };
