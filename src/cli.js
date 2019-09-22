@@ -1,11 +1,17 @@
 'use strict';
 
+const {basename} = require('path');
+const os = require('os');
+
 const commandLineArgs = require('command-line-args');
+
 const {
   install, audit, test,
+  findGitRepos,
   processUpdates, getRemotes, switchBranch, addUnstaged, commit, push
 } = require('./index.js');
 
+// Todo: Some should probably not be command line as vary per repo
 // Todo: Regex options (`filter`, `reject`) not possible?
 const options = commandLineArgs([
   // multiple: true, defaultOption: true
@@ -41,36 +47,63 @@ const options = commandLineArgs([
   // Not accessible programmatically?
   {name: 'version', type: Boolean, alias: 'v'},
 
-  {name: 'token', type: String, alias: 't'}
+  // Git
+  {name: 'token', type: String, alias: 't'},
+
+  // Repos
+  {name: 'basePath', type: String, alias: 'b'}
 ]);
 
 (async () => {
-const upgraded = await processUpdates(options);
-console.log('dependencies to upgrade:', upgraded);
-
-const repositoryPath = '/a/path';
+const basePath = os.homedir();
 const branchName = 'master';
 
-await install({repositoryPath});
+let excludeRepositories = [], repositoriesToRemotes = {};
+try {
+  // eslint-disable-next-line global-require, import/no-dynamic-require
+  const updateConfig = require(`${basePath}/update-packages.json`);
+  if (updateConfig) {
+    ({excludeRepositories, repositoriesToRemotes} = updateConfig);
+  }
+} catch (err) {}
 
-await audit({args: ['fix']});
-
-await test();
-
-// Todo: https://isomorphic-git.org/docs/en/authentication.html
-const {token} = options;
-
-await switchBranch({repositoryPath, branchName});
-
-await addUnstaged({repositoryPath});
-await commit({repositoryPath});
-
-const remotes = await getRemotes({repositoryPath});
-console.log('remotes', remotes);
+const repos = await findGitRepos({basePath});
+const repositoryPaths = Object.keys(repos);
 
 await Promise.all(
-  remotes.map((remoteName) => {
-    return push({repositoryPath, remoteName, branchName, token});
+  repositoryPaths.map(async (repositoryPath) => {
+    const repoFile = basename(repositoryPath);
+    if (excludeRepositories.includes(repoFile)) {
+      return;
+    }
+
+    const upgraded = await processUpdates({...options});
+    console.log('dependencies to upgrade:', upgraded);
+
+    await install({repositoryPath});
+
+    await audit({args: ['fix']});
+
+    await test();
+
+    // Todo: https://isomorphic-git.org/docs/en/authentication.html
+    const {token} = options;
+
+    await switchBranch({repositoryPath, branchName});
+
+    await addUnstaged({repositoryPath});
+    await commit({repositoryPath});
+
+    const remotes = repositoriesToRemotes[repoFile] ||
+      await getRemotes({repositoryPath});
+
+    console.log('remotes', remotes);
+
+    await Promise.all(
+      remotes.map((remoteName) => {
+        return push({repositoryPath, remoteName, branchName, token});
+      })
+    );
   })
 );
 })();

@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/brettz9/update-packages#readme",
   "engines": {
-    "node": ">= 8.0.0"
+    "node": ">= 8.3.0"
   },
   "devDependencies": {
     "@mysticatea/eslint-plugin": "^11.0.0",

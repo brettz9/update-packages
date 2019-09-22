@@ -21,10 +21,11 @@
 
 ## Possible future to-dos
 
-1. We could configure ncu, branch, commit message, audit fix, and npm script
+1. Add tests
+2. We could configure ncu, branch, commit message, audit fix, and npm script
   by repo (by default when available and as exceptions), but less critical,
   especially for ncu as it accepts config file
-2. We might ideally allow subscribing to an RSS feed of security notices so
+3. We might ideally allow subscribing to an RSS feed of security notices so
   as to regularly poll for security updates and upon encountering one which
   was in a cached map of dependencies, would attempt to commit an update
   to that repo.

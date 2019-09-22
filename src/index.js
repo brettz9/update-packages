@@ -2,6 +2,7 @@
 const fs = require('fs');
 const npm = require('npm');
 const git = require('isomorphic-git');
+const findGitRepos = require('find-git-repos');
 
 git.plugins.set('fs', fs);
 
@@ -149,6 +150,19 @@ exports.test = ({args} = {}) => {
         return;
       }
       resolve();
+    });
+  });
+};
+
+exports.findGitRepos = ({basePath}) => {
+  // eslint-disable-next-line promise/avoid-new
+  return new Promise(function (resolve, reject) {
+    findGitRepos(basePath, (error, repos) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve(repos);
     });
   });
 };
