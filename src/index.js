@@ -1,7 +1,8 @@
 'use strict';
+const Git = require('nodegit');
 const ncu = require('npm-check-updates');
 
-module.exports = async function ({
+exports.processUpdates = function ({
   configFilePath, // = './',
   configFileName, // = '.ncurc.{json,yml,js}',
   dep, // prod|dev|peer|optional|bundle (comma-delimited)
@@ -32,7 +33,7 @@ module.exports = async function ({
   upgrade, // = false
   version
 } = {}) {
-  const upgraded = await ncu.run({
+  return ncu.run({
     // Any command-line option can be specified here.
 
     // Pass in user config
@@ -63,6 +64,15 @@ module.exports = async function ({
     upgrade,
     version
   });
+};
 
-  console.log('dependencies to upgrade:', upgraded);
+exports.getRemotes = (repository) => {
+  return Git.Remote.list(repository);
+};
+
+exports.switchBranch = async (repository, branchName) => {
+  const reference = await repository.getBranch(
+    'refs/remotes/origin/' + branchName
+  );
+  return repository.checkoutRef(reference);
 };

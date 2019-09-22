@@ -4,9 +4,10 @@
 
 ## Immediate to-dos
 
-1. Allow master config file for indication of:
+1. Allow master config file (as well as CLI) for indication of:
   1. Which repositories (in subdirectories) to include or exclude
   2. Which remotes to push to if any (by default when available and as exceptions)
+  1. Option on whether to confirm
 1. Implement programmatic equivalent of these commands for each included repo:
   1. ncu -u (checking config file)
   2. npm install

@@ -1,7 +1,7 @@
 'use strict';
 
 const commandLineArgs = require('command-line-args');
-const processUpdates = require('./index.js');
+const {processUpdates, getRemotes, switchBranch} = require('./index.js');
 
 // Todo: Regex options (`filter`, `reject`) not possible?
 const options = commandLineArgs([
@@ -39,4 +39,13 @@ const options = commandLineArgs([
   {name: 'version', type: Boolean, alias: 'v'}
 ]);
 
-processUpdates(options);
+(async () => {
+const upgraded = await processUpdates(options);
+console.log('dependencies to upgrade:', upgraded);
+
+const remotes = await getRemotes();
+
+// await switchBranch(repository, 'master');
+
+console.log('remotes', remotes);
+})();

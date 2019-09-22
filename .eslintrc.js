@@ -9,6 +9,7 @@ module.exports = {
   },
   rules: {
     "import/no-commonjs": 0,
+    "node/exports-style": 0,
     "no-console": 0
   }
 };
