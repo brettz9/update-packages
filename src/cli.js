@@ -1,7 +1,9 @@
 'use strict';
 
 const commandLineArgs = require('command-line-args');
-const {processUpdates, getRemotes, switchBranch} = require('./index.js');
+const {
+  processUpdates, getRemotes, switchBranch, addUnstaged, commit, push
+} = require('./index.js');
 
 // Todo: Regex options (`filter`, `reject`) not possible?
 const options = commandLineArgs([
@@ -36,7 +38,9 @@ const options = commandLineArgs([
   {name: 'timeout', type: Number},
   {name: 'upgrade', type: Boolean, alias: 'u'},
   // Not accessible programmatically?
-  {name: 'version', type: Boolean, alias: 'v'}
+  {name: 'version', type: Boolean, alias: 'v'},
+
+  {name: 'token', type: String, alias: 't'}
 ]);
 
 (async () => {
@@ -44,9 +48,22 @@ const upgraded = await processUpdates(options);
 console.log('dependencies to upgrade:', upgraded);
 
 const repositoryPath = '/a/path';
+const branchName = 'master';
+const {token} = options;
+
+// Todo: https://isomorphic-git.org/docs/en/authentication.html
+
+await switchBranch({repositoryPath, branchName});
+
+await addUnstaged({repositoryPath});
+await commit({repositoryPath});
+
 const remotes = await getRemotes({repositoryPath});
-
-// await switchBranch({repositoryPath, branchName: 'master'});
-
 console.log('remotes', remotes);
+
+await Promise.all(
+  remotes.map((remoteName) => {
+    return push({repositoryPath, remoteName, branchName, token});
+  })
+);
 })();

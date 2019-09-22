@@ -1,5 +1,9 @@
 'use strict';
-const Git = require('nodegit');
+const fs = require('fs');
+const git = require('isomorphic-git');
+
+git.plugins.set('fs', fs);
+
 const ncu = require('npm-check-updates');
 
 exports.processUpdates = function ({
@@ -67,20 +71,42 @@ exports.processUpdates = function ({
 };
 
 exports.getRemotes = async ({repositoryPath}) => {
-  const repository = await Git.Repository.open(repositoryPath);
-  return Git.Remote.list(repository);
+  const remoteObjs = await git.listRemotes({dir: repositoryPath});
+  return remoteObjs.map(({remote: remoteName}) => remoteName);
 };
 
-exports.switchBranch = async ({repositoryPath, branchName}) => {
-  const repository = await Git.Repository.open(repositoryPath);
-  const reference = await repository.getBranch(
-    'refs/remotes/origin/' + branchName
-  );
-  return repository.checkoutRef(reference);
+exports.switchBranch = ({repositoryPath, branchName}) => {
+  return git.checkout({dir: repositoryPath, ref: branchName});
 };
 
-exports.commit = async ({repositoryPath}) => {
-  const repository = await Git.Repository.open(repositoryPath);
-  // Todo: Finish
-  Git.Commit.create(repository);
+const getUnstaged = exports.getUnstaged = async ({repositoryPath}) => {
+  const FILE = 0, WORKDIR = 2, STAGE = 3;
+
+  const fileNames = (await git.statusMatrix({dir: repositoryPath}))
+    .filter((row) => row[WORKDIR] !== row[STAGE])
+    .map((row) => row[FILE]);
+  return fileNames;
+};
+
+exports.addUnstaged = async ({repositoryPath}) => {
+  const fileNames = await getUnstaged({repositoryPath});
+  return Promise.all(fileNames.map((fileName) => {
+    return git.add({dir: repositoryPath, filepath: fileName});
+  }));
+};
+
+exports.commit = ({repositoryPath}) => {
+  return git.commit({
+    dir: repositoryPath,
+    message: 'Updated deps or devDeps'
+  });
+};
+
+exports.push = ({repositoryPath, remoteName, branchName, token}) => {
+  return git.push({
+    dir: repositoryPath,
+    remote: remoteName,
+    ref: branchName,
+    token
+  });
 };

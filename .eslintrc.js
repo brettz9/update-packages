@@ -1,10 +1,12 @@
 module.exports = {
   extends: ["ash-nazg/sauron-node", "plugin:node/recommended-script"],
   env: {
-    node: true
+    node: true,
+    browser: true
   },
   settings: {
       polyfills: [
+        "Promise.all"
       ]
   },
   rules: {
