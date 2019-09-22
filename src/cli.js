@@ -48,7 +48,7 @@ const options = commandLineArgs([
   {name: 'version', type: Boolean, alias: 'v'},
 
   // Git
-  {name: 'token', type: String, alias: 't'},
+  {name: 'token', type: String, alias: 'o'},
 
   // Repos
   {name: 'basePath', type: String, alias: 'b'}
@@ -69,6 +69,9 @@ try {
 
 const repos = await findGitRepos({basePath});
 const repositoryPaths = Object.keys(repos);
+
+console.log('repositoryPaths', repositoryPaths);
+return;
 
 await Promise.all(
   repositoryPaths.map(async (repositoryPath) => {
