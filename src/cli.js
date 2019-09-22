@@ -81,9 +81,15 @@ if (basePath) {
   }
 }
 
-const repositoryPaths = options.repository
-  ? [options.repository]
-  : (await findGitRepos({basePath}));
+let repositoryPaths;
+try {
+  repositoryPaths = options.repository
+    ? [options.repository]
+    : (await findGitRepos({basePath}));
+} catch (err) {
+  console.log('Error retrieving git repositories from basePath', basePath, err);
+  return;
+}
 
 // console.log('repositoryPaths', repositoryPaths);
 
@@ -93,6 +99,7 @@ await Promise.all(
 
     // console.log('repoFile', repositoryPath, repoFile);
     if (excludeRepositories.includes(repoFile)) {
+      console.log('Skipping repository', repoFile);
       return;
     }
 
@@ -100,31 +107,80 @@ await Promise.all(
     const upgrade = !options.dryRun;
     console.log('upgrade', upgrade);
     if (upgrade) {
-      await switchBranch({repositoryPath, branchName});
+      try {
+        await switchBranch({repositoryPath, branchName});
+      } catch (err) {
+        console.log(
+          'Erring switching to branch of repository', repositoryPath,
+          'on branch', branchName, err
+        );
+        return;
+      }
     }
-    const upgraded = await processUpdates({
-      ...options,
-      packageFile: `${repositoryPath}/package.json`,
-      upgrade
-    });
 
-    console.log('dependencies to upgrade:', upgraded);
-    if (!upgrade) {
+    let upgraded;
+    try {
+      upgraded = await processUpdates({
+        ...options,
+        packageFile: `${repositoryPath}/package.json`,
+        upgrade
+      });
+    } catch (err) {
+      console.log(
+        `Error processing npm-check-updates (with upgrade ${upgrade})`,
+        err
+      );
       return;
     }
 
-    await install({repositoryPath});
-    return;
+    console.log('dependencies to upgrade:', upgraded);
+    if (!upgrade) {
+      console.log('Finished processing (without update)', repositoryPath);
+      return;
+    }
 
-    await audit({args: ['fix']});
+    try {
+      await install({repositoryPath});
+    } catch (err) {
+      console.log('Error installing', repositoryPath, err);
+      return;
+    }
 
-    await test();
+    try {
+      await audit({repositoryPath, args: ['fix']});
+    } catch (err) {
+      console.log('Error auditing/fixing', repositoryPath, err);
+    }
 
-    await addUnstaged({repositoryPath});
-    await commit({repositoryPath});
+    try {
+      await test({repositoryPath});
+    } catch (err) {
+      console.log('Error with test', repositoryPath, err);
+      return;
+    }
 
-    const remotes = repositoriesToRemotes[repoFile] ||
-      await getRemotes({repositoryPath});
+    try {
+      await addUnstaged({repositoryPath});
+    } catch (err) {
+      console.log('Error adding unstaged files', repositoryPath, err);
+      return;
+    }
+
+    try {
+      await commit({repositoryPath});
+    } catch (err) {
+      console.log('Error committing', repositoryPath, err);
+      return;
+    }
+
+    let remotes;
+    try {
+      remotes = repositoriesToRemotes[repoFile] ||
+        await getRemotes({repositoryPath});
+    } catch (err) {
+      console.log('Error getting remotes', repositoryPath, err);
+      return;
+    }
 
     console.log('remotes', remotes);
 
@@ -132,10 +188,25 @@ await Promise.all(
     const {token} = options;
 
     await Promise.all(
-      remotes.map((remoteName) => {
-        return push({repositoryPath, remoteName, branchName, token});
+      remotes.map(async (remoteName) => {
+        let pushed;
+        try {
+          pushed = await push({repositoryPath, remoteName, branchName, token});
+        } catch (err) {
+          console.log(
+            'Error pushing to repository', repositoryPath,
+            'with remote', remoteName,
+            'to branch', branchName,
+            'with token', token,
+            err
+          );
+          return undefined;
+        }
+        return pushed;
       })
     );
+    console.log('Finished processing', repositoryPath);
   })
 );
+console.log('Completed all items!');
 })();

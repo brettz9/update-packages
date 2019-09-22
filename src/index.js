@@ -118,7 +118,9 @@ exports.install = ({repositoryPath, args = []}) => {
   // eslint-disable-next-line promise/avoid-new
   return new Promise(function (resolve, reject) {
     npm.load({
-      // What "cli" config would go here?
+      loaded: false,
+      progress: false,
+      prefix: repositoryPath
     // eslint-disable-next-line promise/prefer-await-to-callbacks
     }, (err) => {
       if (err) {
@@ -138,28 +140,50 @@ exports.install = ({repositoryPath, args = []}) => {
 
 // fix; if problematic, use https://github.com/Vispercept/run-npm-audit ?
 // check user/global npm audit config
-exports.audit = ({args} = {}) => {
+exports.audit = ({repositoryPath, args} = {}) => {
   // eslint-disable-next-line promise/avoid-new
   return new Promise(function (resolve, reject) {
-    npm.audit(args, (error) => {
-      if (error) {
-        reject(error);
+    npm.load({
+      loaded: false,
+      progress: false,
+      prefix: repositoryPath
+    // eslint-disable-next-line promise/prefer-await-to-callbacks
+    }, (err) => {
+      if (err) {
+        reject(err);
         return;
       }
-      resolve();
+      npm.commands.audit(args, (error) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve();
+      });
     });
   });
 };
 
-exports.test = ({args} = {}) => {
+exports.test = ({repositoryPath, args = []} = {}) => {
   // eslint-disable-next-line promise/avoid-new
   return new Promise(function (resolve, reject) {
-    npm.test(args, (error) => {
-      if (error) {
-        reject(error);
+    npm.load({
+      loaded: false,
+      progress: false,
+      prefix: repositoryPath
+    // eslint-disable-next-line promise/prefer-await-to-callbacks
+    }, (err) => {
+      if (err) {
+        reject(err);
         return;
       }
-      resolve();
+      npm.commands.test(args, (error) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve();
+      });
     });
   });
 };
