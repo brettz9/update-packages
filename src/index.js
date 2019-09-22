@@ -1,5 +1,6 @@
 'use strict';
 const fs = require('fs');
+const {basename} = require('path');
 
 const npm = require('npm');
 const git = require('isomorphic-git');
@@ -163,12 +164,14 @@ exports.findGitRepos = ({basePath}) => {
         reject(error);
         return;
       }
-      const repoFiles = files.filter((file) => {
-        return !file.startsWith('.') &&
+      const repoFiles = files.map((file) => {
+        return basePath + '/' + file;
+      }).filter((file) => {
+        return !basename(file).startsWith('.') &&
           // eslint-disable-next-line no-sync
-          fs.existsSync(basePath + '/' + file + '/.git') &&
+          fs.existsSync(file + '/.git') &&
           // eslint-disable-next-line no-sync
-          fs.existsSync(basePath + '/' + file + '/package.json');
+          fs.existsSync(file + '/package.json');
       });
       resolve(repoFiles);
     });

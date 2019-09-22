@@ -1,6 +1,6 @@
 'use strict';
 
-const {basename, dirname} = require('path');
+const {basename} = require('path');
 const os = require('os');
 
 const commandLineArgs = require('command-line-args');
@@ -51,7 +51,9 @@ const options = commandLineArgs([
   {name: 'token', type: String, alias: 'o'},
 
   // Repos
-  {name: 'basePath', type: String, alias: 'b'}
+  {name: 'repository', type: String, alias: 'y'},
+  {name: 'basePath', type: String, alias: 'b'},
+  {name: 'configFile', type: String, alias: 'c'}
 ]);
 
 (async () => {
@@ -59,31 +61,41 @@ const basePath = options.basePath || os.homedir();
 const branchName = 'master';
 
 let excludeRepositories = [], repositoriesToRemotes = {};
-try {
-  // eslint-disable-next-line global-require, import/no-dynamic-require
-  const updateConfig = require(`${basePath}/update-packages.json`);
-  if (updateConfig) {
-    ({excludeRepositories, repositoriesToRemotes} = updateConfig);
+
+if (basePath) {
+  const configFile = options.configFile || options.repository
+    ? null
+    : `${basePath}/update-packages.json`;
+
+  if (configFile) {
+    try {
+      // eslint-disable-next-line global-require, import/no-dynamic-require
+      const updateConfig = require(configFile);
+      if (updateConfig) {
+        ({excludeRepositories, repositoriesToRemotes} = updateConfig);
+      }
+    } catch (err) {}
   }
-} catch (err) {}
+}
 
-const repositoryPaths = await findGitRepos({basePath});
+const repositoryPaths = options.repository
+  ? [options.repository]
+  : (await findGitRepos({basePath}));
 
-console.log('repositoryPaths', repositoryPaths);
+// console.log('repositoryPaths', repositoryPaths);
 
 await Promise.all(
-  repositoryPaths.map((repoPath) => {
-    return dirname(repoPath);
-  }).map(async (repositoryPath) => {
+  repositoryPaths.map(async (repositoryPath) => {
     const repoFile = basename(repositoryPath);
+
+    // console.log('repoFile', repositoryPath, repoFile);
     if (excludeRepositories.includes(repoFile)) {
       return;
     }
 
-    return;
-
     const upgraded = await processUpdates({...options});
     console.log('dependencies to upgrade:', upgraded);
+    return;
 
     await install({repositoryPath});
 
