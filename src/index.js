@@ -166,7 +166,9 @@ exports.findGitRepos = ({basePath}) => {
       const repoFiles = files.filter((file) => {
         return !file.startsWith('.') &&
           // eslint-disable-next-line no-sync
-          fs.existsSync(basePath + '/' + file + '/.git');
+          fs.existsSync(basePath + '/' + file + '/.git') &&
+          // eslint-disable-next-line no-sync
+          fs.existsSync(basePath + '/' + file + '/package.json');
       });
       resolve(repoFiles);
     });
