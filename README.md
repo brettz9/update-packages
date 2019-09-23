@@ -29,7 +29,6 @@ The steps that are taken are as follows:
 
 ## Immediate to-dos
 
-1. Fix bug with somehow continuing upon error and not switching back branches
 1. Test
   1. Master config file (as well as CLI) for indication of:
     1. Which repositories (in subdirectories) to include or exclude

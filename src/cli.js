@@ -197,6 +197,7 @@ await Promise.all(
       await logAndSwitchBackBranch(
         'Error auditing/fixing', repositoryPath, err
       );
+      return;
     }
 
     try {
@@ -297,7 +298,8 @@ await Promise.all(
             username, password, token
           });
         } catch (err) {
-          await logAndSwitchBackBranch(
+          // No need to switch back branch here as will do below
+          console.log(
             'Error pushing to repository', repositoryPath,
             'with remote', remoteName,
             'to branch', branchName,
