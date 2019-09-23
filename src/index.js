@@ -84,6 +84,10 @@ exports.switchBranch = ({repositoryPath, branchName}) => {
   return git.checkout({dir: repositoryPath, ref: branchName});
 };
 
+exports.getBranch = ({repositoryPath}) => {
+  return git.currentBranch({dir: repositoryPath});
+};
+
 const getUnstaged = exports.getUnstaged = async ({repositoryPath}) => {
   const FILE = 0, WORKDIR = 2, STAGE = 3;
 

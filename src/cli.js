@@ -8,7 +8,8 @@ const commandLineArgs = require('command-line-args');
 const {
   install, audit, test,
   findGitRepos, getGlobalGitAuthorInfo,
-  processUpdates, getRemotes, switchBranch, addUnstaged, commit, push
+  processUpdates, getRemotes, switchBranch, getBranch,
+  addUnstaged, commit, push
 } = require('./index.js');
 
 // Todo: Some should probably not be command line as vary per repo
@@ -56,7 +57,8 @@ const options = commandLineArgs([
   {name: 'basePath', type: String, alias: 'b'},
   {name: 'configFile', type: String, alias: 'c'},
   {name: 'dryRun', type: Boolean},
-  {name: 'branchName', type: String}
+  {name: 'branchName', type: String},
+  {name: 'stayOnChangedBranch', type: Boolean}
 ]);
 
 (async () => {
@@ -103,13 +105,47 @@ await Promise.all(
       return;
     }
 
-    // Todo: Detect current branch and then switch back to it after commit;
-    //  switch back upon error?
-
     // We want `upgrade` disableable, so we use a new option
     const upgrade = !options.dryRun;
     console.log('upgrade', upgrade);
+
+    let startingBranch;
+    const logAndSwitchBackBranch = async (...message) => {
+      console.log(...message);
+      if (!upgrade ||
+        startingBranch === branchName ||
+        options.stayOnChangedBranch
+      ) {
+        console.log(!upgrade,
+          startingBranch === branchName,
+          options.stayOnChangedBranch);
+        return;
+      }
+      try {
+        console.log('switching attempt for', startingBranch);
+        await switchBranch({repositoryPath, branchName: startingBranch});
+        console.log(
+          'Switched branch for', repositoryPath,
+          'back to', startingBranch
+        );
+      } catch (err) {
+        console.log(
+          'Could not switch back branch for', repositoryPath,
+          'to', startingBranch,
+          err
+        );
+      }
+    };
+
     if (upgrade) {
+      try {
+        startingBranch = await getBranch({repositoryPath});
+      } catch (err) {
+        console.log(
+          'Could not get starting branch for', repositoryPath, err
+        );
+        return;
+      }
       try {
         await switchBranch({repositoryPath, branchName});
       } catch (err) {
@@ -129,7 +165,7 @@ await Promise.all(
         upgrade
       });
     } catch (err) {
-      console.log(
+      await logAndSwitchBackBranch(
         `Error processing npm-check-updates (with upgrade ${upgrade})`,
         err
       );
@@ -145,27 +181,36 @@ await Promise.all(
     try {
       await install({repositoryPath});
     } catch (err) {
-      console.log('Error installing', repositoryPath, err);
+      await logAndSwitchBackBranch('Error installing', repositoryPath, err);
       return;
     }
 
     try {
       await audit({repositoryPath, args: ['fix']});
     } catch (err) {
-      console.log('Error auditing/fixing', repositoryPath, err);
+      await logAndSwitchBackBranch(
+        'Error auditing/fixing', repositoryPath, err
+      );
     }
 
     try {
       await test({repositoryPath});
     } catch (err) {
-      console.log('Error with test', repositoryPath, err);
+      await logAndSwitchBackBranch(
+        'Error with test', repositoryPath, err
+      );
       return;
     }
 
     try {
+      // Though we could check the length to see if any files were added,
+      //  and avoid committing again if so, we might have failed committing
+      //  last time, so we do again
       await addUnstaged({repositoryPath});
     } catch (err) {
-      console.log('Error adding unstaged files', repositoryPath, err);
+      await logAndSwitchBackBranch(
+        'Error adding unstaged files', repositoryPath, err
+      );
       return;
     }
 
@@ -201,7 +246,7 @@ await Promise.all(
           email: globalGitAuthorEmail
         }});
       } catch (error) {
-        console.log(
+        await logAndSwitchBackBranch(
           'Error committing with global credentials', repositoryPath, error
         );
         return;
@@ -213,7 +258,9 @@ await Promise.all(
       remotes = repositoriesToRemotes[repoFile] ||
         await getRemotes({repositoryPath});
     } catch (err) {
-      console.log('Error getting remotes', repositoryPath, err);
+      await logAndSwitchBackBranch(
+        'Error getting remotes', repositoryPath, err
+      );
       return;
     }
 
@@ -229,7 +276,7 @@ await Promise.all(
         try {
           pushed = await push({repositoryPath, remoteName, branchName, token});
         } catch (err) {
-          console.log(
+          await logAndSwitchBackBranch(
             'Error pushing to repository', repositoryPath,
             'with remote', remoteName,
             'to branch', branchName,
@@ -241,7 +288,9 @@ await Promise.all(
         return pushed;
       })
     );
-    console.log('Finished processing', repositoryPath);
+    await logAndSwitchBackBranch(
+      'Finished processing', repositoryPath
+    );
   })
 );
 console.log('Completed all items!');
