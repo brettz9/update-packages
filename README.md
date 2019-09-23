@@ -29,8 +29,6 @@ The steps that are taken are as follows:
 
 ## Immediate to-dos
 
-1. Implement programmatic equivalent of `git push` command for each included repo:
-  1. e.g., `git push origin && git push upstream`
 1. Test
   1. Master config file (as well as CLI) for indication of:
     1. Which repositories (in subdirectories) to include or exclude

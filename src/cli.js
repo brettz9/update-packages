@@ -49,38 +49,42 @@ const options = commandLineArgs([
   // Not accessible programmatically?
   {name: 'version', type: Boolean, alias: 'v'},
 
-  // Git
-  {name: 'token', type: String, alias: 'o'},
-
   // Repos
   {name: 'repository', type: String, alias: 'y'},
   {name: 'basePath', type: String, alias: 'b'},
   {name: 'configFile', type: String, alias: 'c'},
   {name: 'dryRun', type: Boolean},
   {name: 'branchName', type: String},
-  {name: 'stayOnChangedBranch', type: Boolean}
+  {name: 'stayOnChangedBranch', type: Boolean},
+
+  // Git
+  {name: 'token', type: String, alias: 'o'},
+
+  // Defaults to checking local config and then global config
+  {name: 'username', type: String},
+  {name: 'password', type: String}
 ]);
 
 (async () => {
-const basePath = options.basePath || os.homedir();
-const branchName = options.branchName || 'master';
+const {
+  basePath = os.homedir(),
+  configFile = basePath ? `${basePath}/update-packages.json` : null,
+  branchName = 'master'
+} = options;
 
+let updateConfig = {};
 let excludeRepositories = [], repositoriesToRemotes = {};
 
-if (basePath) {
-  const configFile = options.configFile || options.repository
-    ? null
-    : `${basePath}/update-packages.json`;
-
-  if (configFile) {
-    try {
-      // eslint-disable-next-line global-require, import/no-dynamic-require
-      const updateConfig = require(configFile);
-      if (updateConfig) {
-        ({excludeRepositories, repositoriesToRemotes} = updateConfig);
-      }
-    } catch (err) {}
-  }
+if (configFile) {
+  try {
+    // eslint-disable-next-line global-require, import/no-dynamic-require
+    updateConfig = require(configFile);
+    if (updateConfig) {
+      ({
+        excludeRepositories, repositoriesToRemotes
+      } = updateConfig);
+    }
+  } catch (err) {}
 }
 
 let repositoryPaths;
@@ -279,16 +283,19 @@ await Promise.all(
     }
 
     console.log('remotes', remotes);
+    const {token, username, password} = {...updateConfig, ...options};
 
-    // Todo: https://isomorphic-git.org/docs/en/authentication.html
-    const {token} = options;
+    // See https://isomorphic-git.org/docs/en/authentication.html
 
     // Todo: Only push to `origin` by default
     await Promise.all(
       remotes.map(async (remoteName) => {
         let pushed;
         try {
-          pushed = await push({repositoryPath, remoteName, branchName, token});
+          pushed = await push({
+            repositoryPath, remoteName, branchName,
+            username, password, token
+          });
         } catch (err) {
           await logAndSwitchBackBranch(
             'Error pushing to repository', repositoryPath,
