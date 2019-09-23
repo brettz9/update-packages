@@ -32,7 +32,7 @@ The steps that are taken are as follows:
     1. Push to each relevant remote
     -->
 
-## Immediate to-dos
+## To-dos
 
 1. Support pushing to multiple and alternate remote names besides `origin`.
 1. Test
@@ -40,6 +40,8 @@ The steps that are taken are as follows:
     1. Which repositories (in subdirectories) to include or exclude
     1. Which remotes to push to if any (by default when available and as
         exceptions)
+1. Avoid adding commit if will be empty 
+1. Allow optional tagging and/or `npm publish`
 1. Add option on whether to confirm updates
 1. Make final list at end of tasks completed, sorted by stage of final
     failure (if any)
