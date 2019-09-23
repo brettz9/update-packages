@@ -81,7 +81,7 @@ if (configFile) {
     updateConfig = require(configFile);
     if (updateConfig) {
       ({
-        excludeRepositories, repositoriesToRemotes
+        excludeRepositories = [], repositoriesToRemotes = {}
       } = updateConfig);
     }
   } catch (err) {}
