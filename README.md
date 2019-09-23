@@ -26,11 +26,15 @@ The steps that are taken are as follows:
     1. Attempt local commit (without global credentials)
     1. Upon failing, retrieve global Git config info and use for global
         commit attempt
+    1. Push to `origin`
+    <!--
     1. Get remote names
     1. Push to each relevant remote
+    -->
 
 ## Immediate to-dos
 
+1. Support pushing to multiple and alternate remote names besides `origin`.
 1. Test
   1. Master config file (as well as CLI) for indication of:
     1. Which repositories (in subdirectories) to include or exclude
