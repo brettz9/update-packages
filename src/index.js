@@ -5,6 +5,7 @@ const {basename} = require('path');
 const npm = require('npm');
 const git = require('isomorphic-git');
 const parseGitConfig = require('parse-git-config');
+const parseGithubURL = require('parse-github-url');
 const getGitConfigPath = require('git-config-path');
 
 git.plugins.set('fs', fs);
@@ -112,19 +113,36 @@ exports.commit = ({repositoryPath, author}) => {
   });
 };
 
+exports.getRemoteURL = async ({repositoryPath, remoteName}) => {
+  // Can use npm package `gitconfig` if problem here not getting home
+  const gitStyleURL = await git.config({
+    dir: repositoryPath,
+    path: `remote.${remoteName}.url`
+  });
+  const {
+    host,
+    repo,
+    protocol
+  } = parseGithubURL(gitStyleURL);
+  return `${protocol || 'https://'}${host}/${repo}`;
+};
+
 exports.push = ({
-  repositoryPath, remoteName, branchName, token, username, password
+  repositoryPath, remoteName, branchName, token, username, password,
+  url
 }) => {
   console.log(
     'repositoryPath, remoteName, branchName',
     repositoryPath, remoteName, branchName
   );
+
   return git.push({
     dir: repositoryPath,
     remote: remoteName,
     ref: branchName,
     token,
-    username, password
+    username, password,
+    url
   });
 };
 

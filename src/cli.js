@@ -7,7 +7,7 @@ const commandLineArgs = require('command-line-args');
 
 const {
   install, audit, test,
-  findGitRepos, getGlobalGitAuthorInfo,
+  findGitRepos, getGlobalGitAuthorInfo, getRemoteURL,
   processUpdates, getRemotes, switchBranch, getBranch,
   addUnstaged, commit, push
 } = require('./index.js');
@@ -291,11 +291,14 @@ await Promise.all(
     // Todo: Only push to `origin` by default
     await Promise.all(
       remotes.map(async (remoteName) => {
+        const url = await getRemoteURL({repositoryPath, remoteName});
+        console.log('Attempting to push URL', url);
+
         let pushed;
         try {
           pushed = await push({
             repositoryPath, remoteName, branchName,
-            username, password, token
+            username, password, token, url
           });
         } catch (err) {
           // No need to switch back branch here as will do below

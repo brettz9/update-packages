@@ -1,6 +1,6 @@
 {
   "name": "update-packages",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Update npm packages",
   "main": "src/index.js",
   "scripts": {
@@ -53,6 +53,7 @@
     "isomorphic-git": "^0.67.2",
     "npm": "^6.11.3",
     "npm-check-updates": "^3.1.23",
-    "parse-git-config": "^3.0.0"
+    "parse-git-config": "^3.0.0",
+    "parse-github-url": "^1.0.2"
   }
 }

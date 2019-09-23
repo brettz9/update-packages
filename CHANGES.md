@@ -1,5 +1,9 @@
 # CHANGES for update-packages
 
-## 0.0.1
+## 0.1.1
+
+- Fix: Parse git@-style URLs
+
+## 0.1.0
 
 - Initial version with minimal functionality
