@@ -115,8 +115,10 @@ exports.commit = ({repositoryPath, author}) => {
 exports.push = ({
   repositoryPath, remoteName, branchName, token, username, password
 }) => {
-  console.log('repositoryPath, remoteName, branchName', repositoryPath, remoteName, branchName);
-  console.log('token', token, 'username', username, 'password', password);
+  console.log(
+    'repositoryPath, remoteName, branchName',
+    repositoryPath, remoteName, branchName
+  );
   return git.push({
     dir: repositoryPath,
     remote: remoteName,
