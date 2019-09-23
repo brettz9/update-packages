@@ -1,6 +1,8 @@
 # update-packages
 
-***This project is not complete.***
+***This project is in an early alpha stage. Please use with extreme caution as this
+can alter your local and remote Git repositories, install npm packages, etc. It
+is recommended to test with a smaller folder or single repository first.***
 
 The steps that are taken are as follows:
 
