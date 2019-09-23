@@ -8,7 +8,7 @@ const commandLineArgs = require('command-line-args');
 const {
   install, audit, test,
   findGitRepos, getGlobalGitAuthorInfo, getRemoteURL,
-  processUpdates, getRemotes, switchBranch, getBranch,
+  processUpdates, switchBranch, getBranch, // getRemotes,
   addUnstaged, commit, push
 } = require('./index.js');
 
@@ -272,6 +272,14 @@ await Promise.all(
       }
     }
 
+    console.log('repositoriesToRemotes', repositoriesToRemotes);
+
+    // Todo: Allow multiple remote retrieval as below but filter
+    //   after getting list based on user's preferences (e.g., to push
+    //   to `upstream` if present, or to take into account
+    //   exclusions/inclusions by repo)
+    const remotes = ['origin'];
+    /*
     let remotes;
     try {
       remotes = repositoriesToRemotes[repoFile] ||
@@ -282,13 +290,13 @@ await Promise.all(
       );
       return;
     }
+    */
 
     console.log('remotes', remotes);
     const {token, username, password} = {...updateConfig, ...options};
 
     // See https://isomorphic-git.org/docs/en/authentication.html
 
-    // Todo: Only push to `origin` by default
     await Promise.all(
       remotes.map(async (remoteName) => {
         const url = await getRemoteURL({repositoryPath, remoteName});

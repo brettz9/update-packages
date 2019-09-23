@@ -35,6 +35,8 @@ The steps that are taken are as follows:
     1. Which remotes to push to if any (by default when available and as
         exceptions)
 1. Add option on whether to confirm updates
+1. Make final list at end of tasks completed, sorted by stage of final
+    failure (if any)
 
 ## Possible future to-dos
 
