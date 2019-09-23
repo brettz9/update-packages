@@ -2,12 +2,36 @@
 
 ***This project is not complete.***
 
+The steps that are taken are as follows:
+
+1. Look through command line options and any config file
+1. Find and cycle through the (non-hidden and non-excluded) targeted Git
+    repository(ies) with `package.json` files.
+    1. Get the current branch name and save it for later restoration
+    1. If upgrading:
+        1. Detect original branch so as to be able to switch back
+          to it afterward (including upon error)
+        1. Switch to the targeted `branchName` (defaulting to `master`)
+    1. Upon erring in any of the following non-recovering steps, switch
+        back to the saved branch.
+    1. Check for npm package updates, updating if so requested
+    1. If not upgrading, stop these steps.
+    1. Attempt to run a local npm install (for the updates)
+    1. Attempt to run an npm security audit and fix any automatable
+        vulnerabilities as possible
+    1. Run an npm test against the repository package
+    1. Add any unstaged files to Git staging
+    1. Attempt local commit (without global credentials)
+    1. Upon failing, retrieve global Git config info and use for global
+        commit attempt
+    1. Get remote names
+    1. Push to each relevant remote
+
 ## Immediate to-dos
 
 1. Implement programmatic equivalent of `git push` command for each included repo:
   1. e.g., `git push origin && git push upstream`
 1. Test
-  1. Detect original branch and switch back to it afterward (including upon error)
   1. Master config file (as well as CLI) for indication of:
     1. Which repositories (in subdirectories) to include or exclude
     1. Which remotes to push to if any (by default when available and as

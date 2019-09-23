@@ -110,24 +110,24 @@ await Promise.all(
     console.log('upgrade', upgrade);
 
     let startingBranch;
+    let switchedBack = false;
     const logAndSwitchBackBranch = async (...message) => {
       console.log(...message);
-      if (!upgrade ||
+      if (switchedBack ||
+        !upgrade ||
         startingBranch === branchName ||
         options.stayOnChangedBranch
       ) {
-        console.log(!upgrade,
-          startingBranch === branchName,
-          options.stayOnChangedBranch);
         return;
       }
       try {
-        console.log('switching attempt for', startingBranch);
         await switchBranch({repositoryPath, branchName: startingBranch});
         console.log(
           'Switched branch for', repositoryPath,
           'back to', startingBranch
         );
+        // eslint-disable-next-line require-atomic-updates
+        switchedBack = true;
       } catch (err) {
         console.log(
           'Could not switch back branch for', repositoryPath,
@@ -178,6 +178,8 @@ await Promise.all(
       return;
     }
 
+    // We install even if the upgrades were empty in case failed previously
+    //  at this step
     try {
       await install({repositoryPath});
     } catch (err) {
@@ -214,30 +216,41 @@ await Promise.all(
       return;
     }
 
-    // This is necessary per https://github.com/isomorphic-git/isomorphic-git/issues/236
-    //   and https://github.com/isomorphic-git/isomorphic-git/issues/690
-    let globalGitAuthorName, globalGitAuthorEmail;
-    try {
-      const globalGitAuthorInfo = await getGlobalGitAuthorInfo();
-      try {
-        ({name: globalGitAuthorName, email: globalGitAuthorEmail} =
-          globalGitAuthorInfo.user);
-      } catch (err) {
-        throw new Error('No user info (for name and email) in global config');
-      }
-      // console.log('globalGitAuthorInfo', globalGitAuthorInfo);
-    } catch (err) {
-      console.log(
-        'Error getting global Git author info; trying Git repo...',
-        err
-      );
-    }
-
     try {
       await commit({repositoryPath});
     } catch (err) {
+      // This is necessary per https://github.com/isomorphic-git/isomorphic-git/issues/236
+      //   and https://github.com/isomorphic-git/isomorphic-git/issues/690
+      let globalGitAuthorName, globalGitAuthorEmail;
+      try {
+        const globalGitAuthorInfo = await getGlobalGitAuthorInfo();
+        try {
+          ({name: globalGitAuthorName, email: globalGitAuthorEmail} =
+            globalGitAuthorInfo.user);
+        } catch (error) {
+          await logAndSwitchBackBranch(
+            'No user info (for name and email) in global config and',
+            'erred with local commit',
+            err
+          );
+          return;
+        }
+        // console.log('globalGitAuthorInfo', globalGitAuthorInfo);
+      } catch (error) {
+        await logAndSwitchBackBranch(
+          'Error getting global Git author info',
+          error,
+          'and erred with local commit',
+          err
+        );
+        return;
+      }
       if (!globalGitAuthorName || !globalGitAuthorEmail) {
-        console.log('Error committing', repositoryPath, err);
+        await logAndSwitchBackBranch(
+          'Global Git author info empty; error with local commit',
+          repositoryPath,
+          err
+        );
         return;
       }
       try {
@@ -247,7 +260,8 @@ await Promise.all(
         }});
       } catch (error) {
         await logAndSwitchBackBranch(
-          'Error committing with global credentials', repositoryPath, error
+          'Error committing with global credentials', repositoryPath, error,
+          'as with local commit', err
         );
         return;
       }
