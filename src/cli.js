@@ -301,8 +301,8 @@ await Promise.all(
           // No need to switch back branch here as will do below
           console.log(
             'Error pushing to repository', repositoryPath,
-            'with remote', remoteName,
-            'to branch', branchName,
+            `with remote "${remoteName}"`,
+            `to branch "${branchName}"`,
             'with token', token,
             err
           );
