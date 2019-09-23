@@ -35,6 +35,9 @@ The steps that are taken are as follows:
 ## To-dos
 
 1. Find an approach for chunking/timing tasks to avoid heap error.
+1. Might save a cache of recency on when the repos have been checked and their
+    state (so non-erring ones aren't checking again, and erring ones can be
+    queries, etc.)
 1. Support pushing to multiple and alternate remote names besides `origin`.
 1. Test
   1. Master config file (as well as CLI) for indication of:
