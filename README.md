@@ -5,6 +5,7 @@
 ## Immediate to-dos
 
 1. Implement programmatic equivalent of `git push` command for each included repo:
+  1. detect original branch and switch back to it afterward
   1. e.g., `git push origin && git push upstream`
 1. Test master config file (as well as CLI) for indication of:
   1. Which repositories (in subdirectories) to include or exclude

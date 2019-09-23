@@ -103,6 +103,9 @@ await Promise.all(
       return;
     }
 
+    // Todo: Detect current branch and then switch back to it after commit;
+    //  switch back upon error?
+
     // We want `upgrade` disableable, so we use a new option
     const upgrade = !options.dryRun;
     console.log('upgrade', upgrade);
