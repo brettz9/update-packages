@@ -44,11 +44,11 @@ The steps that are taken are as follows:
     1. Which **repositories to include or exclude** (in subdirectories)
     1. Which **remotes to push to** if any (by default when available and as
         exceptions)
-1. Avoid adding **empty commit**
-1. Allow optional **tagging** and/or **publishing** via `npm publish`
-1. Add a **confirm updates option**
 1. Make **final list of tasks completed** (at end), sorted by stage of final
     failure (if any)
+    1. Avoid adding **empty commit** but collect and log these afterward
+1. Allow optional **tagging** and/or **publishing** via `npm publish`
+1. Add a **confirm updates option**
 
 ## Possible future to-dos
 
