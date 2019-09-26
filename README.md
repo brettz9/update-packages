@@ -34,20 +34,20 @@ The steps that are taken are as follows:
 
 ## To-dos
 
-1. Find an approach for chunking/timing tasks to avoid heap error.
-1. Might save a cache of recency on when the repos have been checked and their
-    state (so non-erring ones aren't checking again, and erring ones can be
-    queried, etc.)
-1. Support pushing to multiple and alternate remote names besides `origin`.
+1. Find an approach for **chunking/timing tasks** to avoid heap error.
+1. Might save a **cache of recency** on when the repos have been checked and
+    their state (so non-erring ones aren't checking again, and erring ones
+    can be queried, etc.)
+1. Support pushing to **multiple and alternate remote names** besides `origin`.
 1. Test
-  1. Master config file (as well as CLI) for indication of:
-    1. Which repositories (in subdirectories) to include or exclude
-    1. Which remotes to push to if any (by default when available and as
+  1. **Master config file** (as well as CLI) for indication of:
+    1. Which **repositories to include or exclude** (in subdirectories)
+    1. Which **remotes to push to** if any (by default when available and as
         exceptions)
-1. Avoid adding commit if will be empty
-1. Allow optional tagging and/or `npm publish`
-1. Add option on whether to confirm updates
-1. Make final list at end of tasks completed, sorted by stage of final
+1. Avoid adding **empty commit**
+1. Allow optional **tagging** and/or **publishing** via `npm publish`
+1. Add a **confirm updates option**
+1. Make **final list of tasks completed** (at end), sorted by stage of final
     failure (if any)
 
 ## Possible future to-dos
