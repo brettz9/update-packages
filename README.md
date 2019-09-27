@@ -47,8 +47,9 @@ The steps that are taken are as follows:
 1. Make **final list of tasks completed** (at end), sorted by stage of final
     failure (if any)
     1. Avoid adding **empty commit** but collect and log these afterward
-1. Allow optional **`npm version`/`semver`** (which can do **tagging**) and/or
-    **publishing** via `npm publish`
+1. Allow optional **`npm version`/`semver`** (which can bump version, do
+    **tagging** (including a commit template with `%s` as variable for
+    version number)) and/or **publishing** via `npm publish`
 1. Collect and list **`npm outdated`**
 1. Add a **confirm updates option**
 
