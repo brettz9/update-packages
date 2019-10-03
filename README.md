@@ -35,12 +35,19 @@ The steps that are taken are as follows:
 ## To-dos
 
 1. Make **final report of tasks completed** (at end), sorted by stage of
-    final failure (if any); optionally save to status file
+    final failure (if any); optionally save to status file including
+    time checked and final file checked (if in sequence)
 1. Find an approach for **chunking/timing tasks** to avoid heap error.
     1. Break up Promises to be sequential
     2. Resume from checking pre-existing status file
-    1. When the repos have been checked and their state (so non-erring ones
-        aren't checking again, and erring ones can be queried, etc.)
+    1. Check when the repos have been checked with config/default to update
+        past certain duration and their state (so non-erring ones
+        aren't checking again), and if within duration, optionally still
+        check erring ones, etc.)
+    1. Script for querying JSON out of that report file (e.g., to find
+        when last queried); use `jq` (see
+        <https://github.com/s3u/JSONPath/issues/105> for desired
+        jsonpath-plus support)?
 1. **Configuration**
     1. Support pushing to **multiple and alternate remote names** besides
         `origin`.
