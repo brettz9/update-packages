@@ -34,6 +34,8 @@ The steps that are taken are as follows:
 
 ## To-dos
 
+1. Make **final list of tasks completed** (at end), sorted by stage of final
+    failure (if any)
 1. Find an approach for **chunking/timing tasks** to avoid heap error.
 1. Might save a **cache of recency** on when the repos have been checked and
     their state (so non-erring ones aren't checking again, and erring ones
@@ -44,19 +46,17 @@ The steps that are taken are as follows:
     1. Which **repositories to include or exclude** (in subdirectories)
     1. Which **remotes to push to** if any (by default when available and as
         exceptions)
-1. Make **final list of tasks completed** (at end), sorted by stage of final
-    failure (if any)
-1. Allow optional **`npm version`/`semver`** (which can bump version, do
-    **tagging** (including a commit template with `%s` as variable for
-    version number)) and/or **publishing** via `npm publish`
-1. Collect and list **`npm outdated`**
-1. Add a **confirm updates option**
+1. Features
+  1. Allow optional **`npm version`/`semver`** (which can bump version, do
+      **tagging** (including a commit template with `%s` as variable for
+      version number)) and/or **publishing** via `npm publish`
 
 ## Possible future to-dos
 
 1. Add **tests**
 1. **Collect and report back deprecated warnings** for outdated/renamed
     packages
+1. Add a **confirm updates option**
 1. **Configuration**
     1. Add **global commit message** option (with template on info re: devDep
         vs. dep.?) and npm script to run (in place of test)
