@@ -7,6 +7,9 @@
     "eslint": "eslint --ext=js,md,html .",
     "lint": "npm run eslint",
     "check": "node src/cli.js",
+    "report": "npm run jq -- .lastUpdated ~/update-packages-report.json",
+    "cfg-sample": "npm run jq -- .excludeRepositories ~/update-packages.json",
+    "jq": "./node_modules/node-jq/bin/jq",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -51,6 +54,7 @@
     "command-line-args": "^5.1.1",
     "git-config-path": "^2.0.0",
     "isomorphic-git": "^0.67.2",
+    "node-jq": "^1.10.3",
     "npm": "^6.11.3",
     "npm-check-updates": "^3.1.23",
     "parse-git-config": "^3.0.0",
