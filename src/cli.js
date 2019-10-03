@@ -9,7 +9,7 @@ const {
   install, audit, test,
   findGitRepos, getGlobalGitAuthorInfo, getRemoteURL,
   processUpdates, switchBranch, getBranch, // getRemotes,
-  addUnstaged, commit, push
+  addUnstaged, getStaged, commit, push
 } = require('./index.js');
 
 // Todo: Some should probably not be command line as vary per repo
@@ -210,9 +210,6 @@ await Promise.all(
     }
 
     try {
-      // Though we could check the length to see if any files were added,
-      //  and avoid committing again if so, we might have failed committing
-      //  last time, so we do again
       await addUnstaged({repositoryPath});
     } catch (err) {
       await logAndSwitchBackBranch(
@@ -221,54 +218,72 @@ await Promise.all(
       return;
     }
 
+    // To avoid an empty commit, we must count the staged items since
+    //  even if we added no items above, this may have been because they
+    //  were added previously and committing had not succeeded or otherwise
+    //  occurred.
+    let filesStaged = 0;
     try {
-      await commit({repositoryPath});
+      filesStaged = (await getStaged({repositoryPath})).length;
     } catch (err) {
-      // This is necessary per https://github.com/isomorphic-git/isomorphic-git/issues/236
-      //   and https://github.com/isomorphic-git/isomorphic-git/issues/690
-      let globalGitAuthorName, globalGitAuthorEmail;
+      await logAndSwitchBackBranch(
+        'Warning: Error getting staged items length', repositoryPath, err
+      );
+      return;
+    }
+
+    // Since we might have failed committing last time, we do so again
+    //  by default
+    if (filesStaged) {
       try {
-        const globalGitAuthorInfo = await getGlobalGitAuthorInfo();
+        await commit({repositoryPath});
+      } catch (err) {
+        // This is necessary per https://github.com/isomorphic-git/isomorphic-git/issues/236
+        //   and https://github.com/isomorphic-git/isomorphic-git/issues/690
+        let globalGitAuthorName, globalGitAuthorEmail;
         try {
-          ({name: globalGitAuthorName, email: globalGitAuthorEmail} =
-            globalGitAuthorInfo.user);
+          const globalGitAuthorInfo = await getGlobalGitAuthorInfo();
+          try {
+            ({name: globalGitAuthorName, email: globalGitAuthorEmail} =
+              globalGitAuthorInfo.user);
+          } catch (error) {
+            await logAndSwitchBackBranch(
+              'No user info (for name and email) in global config and',
+              'erred with local commit',
+              err
+            );
+            return;
+          }
+          // console.log('globalGitAuthorInfo', globalGitAuthorInfo);
         } catch (error) {
           await logAndSwitchBackBranch(
-            'No user info (for name and email) in global config and',
-            'erred with local commit',
+            'Error getting global Git author info',
+            error,
+            'and erred with local commit',
             err
           );
           return;
         }
-        // console.log('globalGitAuthorInfo', globalGitAuthorInfo);
-      } catch (error) {
-        await logAndSwitchBackBranch(
-          'Error getting global Git author info',
-          error,
-          'and erred with local commit',
-          err
-        );
-        return;
-      }
-      if (!globalGitAuthorName || !globalGitAuthorEmail) {
-        await logAndSwitchBackBranch(
-          'Global Git author info empty; error with local commit',
-          repositoryPath,
-          err
-        );
-        return;
-      }
-      try {
-        await commit({repositoryPath, author: {
-          name: globalGitAuthorName,
-          email: globalGitAuthorEmail
-        }});
-      } catch (error) {
-        await logAndSwitchBackBranch(
-          'Error committing with global credentials', repositoryPath, error,
-          'as with local commit', err
-        );
-        return;
+        if (!globalGitAuthorName || !globalGitAuthorEmail) {
+          await logAndSwitchBackBranch(
+            'Global Git author info empty; error with local commit',
+            repositoryPath,
+            err
+          );
+          return;
+        }
+        try {
+          await commit({repositoryPath, author: {
+            name: globalGitAuthorName,
+            email: globalGitAuthorEmail
+          }});
+        } catch (error) {
+          await logAndSwitchBackBranch(
+            'Error committing with global credentials', repositoryPath, error,
+            'as with local commit', err
+          );
+          return;
+        }
       }
     }
 

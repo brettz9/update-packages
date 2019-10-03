@@ -98,6 +98,15 @@ const getUnstaged = exports.getUnstaged = async ({repositoryPath}) => {
   return fileNames;
 };
 
+exports.getStaged = async ({repositoryPath}) => {
+  const FILE = 0, WORKDIR = 2, STAGE = 3;
+
+  const fileNames = (await git.statusMatrix({dir: repositoryPath}))
+    .filter((row) => row[WORKDIR] === row[STAGE])
+    .map((row) => row[FILE]);
+  return fileNames;
+};
+
 exports.addUnstaged = async ({repositoryPath}) => {
   const fileNames = await getUnstaged({repositoryPath});
   return Promise.all(fileNames.map((fileName) => {
