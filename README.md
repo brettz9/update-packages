@@ -54,9 +54,6 @@ The steps that are taken are as follows:
 ## Possible future to-dos
 
 1. Add **tests**
-1. **Collect and report back deprecated warnings** for outdated/renamed
-    packages
-1. Add a **confirm updates option**
 1. **Configuration**
     1. Add **global commit message** option (with template on info re: devDep
         vs. dep.?) and npm script to run (in place of test)
@@ -64,6 +61,12 @@ The steps that are taken are as follows:
         message, audit fix, and npm script (by default when available and as
         exceptions), but this is less critical, especially for ncu as it
         accepts config file
+1. Add a **confirm updates option**
+1. **Collect and report back deprecated warnings** for outdated/renamed
+    packages ([not performed currently](https://github.com/tjunnone/npm-check-updates/issues/397)
+    by `npm-check-updates`); one can get info on a package with `npm view <package name> deprecated --json` (to get JSON string (e.g., `opn-cli`) or get nothing
+    if not deprecated) but doesn't seem to show with `npm ls` or extended
+    `npm la`.
 1. We might ideally allow **subscribing to an RSS feed of security notices**
     so as to regularly poll for security updates and upon encountering one
     which was in a cached map of dependencies, would attempt to commit an
