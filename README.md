@@ -34,33 +34,34 @@ The steps that are taken are as follows:
 
 ## To-dos
 
-1. Make **final list of tasks completed** (at end), sorted by stage of final
-    failure (if any)
+1. Make **final report of tasks completed** (at end), sorted by stage of
+    final failure (if any); optionally save to status file
 1. Find an approach for **chunking/timing tasks** to avoid heap error.
-1. Might save a **cache of recency** on when the repos have been checked and
-    their state (so non-erring ones aren't checking again, and erring ones
-    can be queried, etc.)
-1. Support pushing to **multiple and alternate remote names** besides `origin`.
-1. Test
-  1. **Master config file** (as well as CLI) for indication of:
-    1. Which **repositories to include or exclude** (in subdirectories)
-    1. Which **remotes to push to** if any (by default when available and as
-        exceptions)
-1. Features
-  1. Allow optional **`npm version`/`semver`** (which can bump version, do
-      **tagging** (including a commit template with `%s` as variable for
-      version number)) and/or **publishing** via `npm publish`
-
-## Possible future to-dos
-
-1. Add **tests**
+    1. Break up Promises to be sequential
+    2. Resume from checking pre-existing status file
+    1. When the repos have been checked and their state (so non-erring ones
+        aren't checking again, and erring ones can be queried, etc.)
 1. **Configuration**
+    1. Support pushing to **multiple and alternate remote names** besides
+        `origin`.
+    1. **Test master config file** (as well as CLI) for indication of:
+      1. Which **repositories to include or exclude** (in subdirectories)
+      1. Which **remotes to push to** if any (by default when available and as
+          exceptions)
     1. Add **global commit message** option (with template on info re: devDep
         vs. dep.?) and npm script to run (in place of test)
     1. We could **configure by repo** the following: ncu, branch, commit
         message, audit fix, and npm script (by default when available and as
         exceptions), but this is less critical, especially for ncu as it
         accepts config file
+
+## Possible future to-dos
+
+1. Add **tests**
+1. Allow optional **`npm version`/`semver`** (which can bump version as
+    appropriate per versions updated, do **tagging** (including a commit
+    template with `%s` as variable for version number)) and/or
+    **publishing** via `npm publish`
 1. Add a **confirm updates option**
 1. **Collect and report back deprecated warnings** for outdated/renamed
     packages ([not performed currently](https://github.com/tjunnone/npm-check-updates/issues/397)
