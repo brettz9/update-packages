@@ -34,6 +34,7 @@ The steps that are taken are as follows:
 
 ## To-dos
 
+1. Have `npm-check-updates` take into account `ncurc` files!
 1. Make **final report of tasks completed** (at end), sorted by stage of
     final failure (if any); optionally save to status file including
     time checked and final file checked (if in sequence)
