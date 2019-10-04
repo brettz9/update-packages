@@ -34,6 +34,7 @@ The steps that are taken are as follows:
 
 ## To-dos
 
+1. Move `token` to separate file so can share configs without concern
 1. Have `npm-check-updates` take into account `ncurc` files!
 1. Make **final report of tasks completed** (at end), sorted by stage of
     final failure (if any); optionally save to status file including
@@ -65,11 +66,11 @@ The steps that are taken are as follows:
 
 ## Possible future to-dos
 
-1. Add **tests**
 1. Allow optional **`npm version`/`semver`** (which can bump version as
     appropriate per versions updated, do **tagging** (including a commit
     template with `%s` as variable for version number)) and/or
     **publishing** via `npm publish`
+1. Add **tests**
 1. Add a **confirm updates option**
 1. **Collect and report back deprecated warnings** for outdated/renamed
     packages ([not performed currently](https://github.com/tjunnone/npm-check-updates/issues/397)

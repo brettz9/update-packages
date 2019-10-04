@@ -34,7 +34,6 @@ const options = commandLineArgs([
   {name: 'newest', type: Boolean, alias: 'n'},
   {name: 'packageData', type: Boolean},
   {name: 'packageFile', type: String},
-  // {name: 'packageFileDir', type: Boolean},
   {name: 'packageManager', type: String, alias: 'p'},
   {name: 'pre', type: Number},
   {name: 'registry', type: String, alias: 'r'},

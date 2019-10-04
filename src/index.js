@@ -8,9 +8,10 @@ const parseGitConfig = require('parse-git-config');
 const parseGithubURL = require('parse-github-url');
 const getGitConfigPath = require('git-config-path');
 
-git.plugins.set('fs', fs);
-
 const ncu = require('npm-check-updates');
+const rcLoader = require('rc-config-loader');
+
+git.plugins.set('fs', fs);
 
 exports.processUpdates = function ({
   configFilePath, // = './',
@@ -31,7 +32,6 @@ exports.processUpdates = function ({
   newest, // = false
   packageData, // = false
   packageFile, // = './package.json'
-  // packageFileDir, // = false
   packageManager, // = 'npm', // npm|bower
   pre, // 0|1
   registry, // (third party registry)
@@ -43,7 +43,27 @@ exports.processUpdates = function ({
   upgrade, // = false
   version
 } = {}) {
+  // This API is only within the ncu binary, so we repeat the logic here,
+  //   minus the formatting as CLI arguments; see
+  //   https://github.com/tjunnone/npm-check-updates/blob/master/bin/ncu#L58-L67
+
+  // Todo: Get `configFilePath` based on `packageFile` by default
+  const rcFile = rcLoader('ncurc', {
+    configFileName: configFileName || '.ncurc',
+    defaultExtension: ['.json', '.yml', '.js'],
+    cwd: configFilePath || undefined
+  });
+  const rcArguments = rcFile && rcFile.config
+    ? Object.entries(rcFile.config).reduce((o, [name, value]) => {
+      o[name] = value;
+      return o;
+    }, {})
+    : [];
+
   return ncu.run({
+    // Config file only as default as CLI may override
+    ...rcArguments,
+
     // Any command-line option can be specified here.
 
     // Pass in user config
@@ -62,7 +82,6 @@ exports.processUpdates = function ({
     newest,
     packageData,
     packageFile,
-    // packageFileDir,
     packageManager,
     pre,
     registry,
