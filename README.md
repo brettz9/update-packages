@@ -34,7 +34,6 @@ The steps that are taken are as follows:
 
 ## To-dos
 
-1. Move `token` to separate file so can share configs without concern
 1. Have `npm-check-updates` take into account `ncurc` files!
 1. Make **final report of tasks completed** (at end), sorted by stage of
     final failure (if any); optionally save to status file including

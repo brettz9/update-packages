@@ -68,12 +68,21 @@ const options = commandLineArgs([
 const {
   basePath = os.homedir(),
   configFile = basePath ? `${basePath}/update-packages.json` : null,
+  authFile = basePath ? `${basePath}/.update-packages-auth.json` : null,
   branchName = 'master'
 } = options;
 
 let updateConfig = {};
 let excludeRepositories = [], repositoriesToRemotes = {};
 
+let authFileToken;
+if (authFile) {
+  try {
+    // eslint-disable-next-line global-require, import/no-dynamic-require
+    ({token: authFileToken} = require(authFile));
+  } catch (err) {
+  }
+}
 if (configFile) {
   try {
     // eslint-disable-next-line global-require, import/no-dynamic-require
@@ -307,7 +316,9 @@ await Promise.all(
     */
 
     console.log('remotes', remotes);
-    const {token, username, password} = {...updateConfig, ...options};
+    const {
+      token, username, password
+    } = {...updateConfig, token: authFileToken, ...options};
 
     // See https://isomorphic-git.org/docs/en/authentication.html
 
