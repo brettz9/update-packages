@@ -1,6 +1,6 @@
 'use strict';
 const fs = require('fs');
-const {basename} = require('path');
+const {basename, dirname} = require('path');
 
 const npm = require('npm');
 const git = require('isomorphic-git');
@@ -12,6 +12,27 @@ const ncu = require('npm-check-updates');
 const rcLoader = require('rc-config-loader');
 
 git.plugins.set('fs', fs);
+
+/**
+ * @param {PlainObject} cfg
+ * @param {string} cfg.configFileName
+ * @param {string} cfg.configFilePath
+ * @returns {PlainObject|undefined} See {@link https://github.com/tjunnone/npm-check-updates}
+ */
+function getNcurc ({configFileName, configFilePath, packageFile}) {
+  // This API is only within the ncu binary, so we repeat the logic here,
+  //   minus the final formatting as CLI arguments and defaulting to
+  //   the `packageFile` directory if present; see
+  //   https://github.com/tjunnone/npm-check-updates/blob/master/bin/ncu#L58-L67
+  const rcFile = rcLoader('ncurc', {
+    configFileName: configFileName || '.ncurc',
+    defaultExtension: ['.json', '.yml', '.js'],
+    cwd: packageFile
+      ? dirname(packageFile)
+      : configFilePath || undefined
+  });
+  return rcFile && rcFile.config;
+}
 
 exports.processUpdates = function ({
   configFilePath, // = './',
@@ -43,22 +64,11 @@ exports.processUpdates = function ({
   upgrade, // = false
   version
 } = {}) {
-  // This API is only within the ncu binary, so we repeat the logic here,
-  //   minus the formatting as CLI arguments; see
-  //   https://github.com/tjunnone/npm-check-updates/blob/master/bin/ncu#L58-L67
-
-  // Todo: Get `configFilePath` based on `packageFile` by default
-  const rcFile = rcLoader('ncurc', {
-    configFileName: configFileName || '.ncurc',
-    defaultExtension: ['.json', '.yml', '.js'],
-    cwd: configFilePath || undefined
+  const rcArguments = getNcurc({
+    configFileName,
+    configFilePath,
+    packageFile
   });
-  const rcArguments = rcFile && rcFile.config
-    ? Object.entries(rcFile.config).reduce((o, [name, value]) => {
-      o[name] = value;
-      return o;
-    }, {})
-    : [];
 
   return ncu.run({
     // Config file only as default as CLI may override

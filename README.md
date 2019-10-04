@@ -34,7 +34,6 @@ The steps that are taken are as follows:
 
 ## To-dos
 
-1. Have `npm-check-updates` take into account `ncurc` files!
 1. Make **final report of tasks completed** (at end), sorted by stage of
     final failure (if any); optionally save to status file including
     time checked and final file checked (if in sequence)
@@ -53,6 +52,8 @@ The steps that are taken are as follows:
     1. Support pushing to **multiple and alternate remote names** besides
         `origin`.
     1. **Test master config file** (as well as CLI) for indication of:
+      1. Ensure still getting `token`
+      1. Ensure `npm-check-updates` is taking into account `ncurc` files!
       1. Which **repositories to include or exclude** (in subdirectories)
       1. Which **remotes to push to** if any (by default when available and as
           exceptions)
