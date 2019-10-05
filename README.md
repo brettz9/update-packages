@@ -91,8 +91,6 @@ To view in HTML (for copy-pasteable commands):
     **publishing** via `npm publish`; don't publish if `private` in
     `package.json` is `true`
 1. Add **tests**
-1. Extract out `command-line-usage`, `ansi-to-svg` and my `ansi-to-html` fork
-    usage within `git-utilities` into own repo for **auto-built docs**
 1. Add optional automated **license check**?
 1. Add a **confirm updates option**
 1. **Collect and report back deprecated warnings** for outdated/renamed
