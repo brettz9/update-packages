@@ -37,22 +37,19 @@ The steps that are taken are as follows:
 1. Make **final report of tasks completed** (at end), sorted by stage of
     final failure (if any); optionally save to status file including
     time checked and repos checked (if in sequence)
-1. Find an approach for **chunking/timing tasks** to avoid heap error.
-    1. Break up **Promises to be sequential**
-    2. **Resume** from checking pre-existing status file; check when the
-        repos have been checked with config/default to update
-        past certain duration and their state (so non-erring ones
-        aren't checking again), and if within duration, optionally still
-        **check erring ones**, etc.)
     1. Document **scripts for querying JSON** out of that report file
         (e.g., to find when last queried); currently using `jq` (though
         see <https://github.com/s3u/JSONPath/issues/105> for desired
         jsonpath-plus support)?
-    1. Allow **limit** to number of Promises
+1. **Resume** from checking pre-existing status file; check when the
+    repos have been checked with config/default to update past certain
+    duration and their state (so non-erring ones aren't checking again),
+    and if within duration, optionally still **check erring ones**, etc.)
 1. **Configuration**
     1. Support pushing to **multiple and alternate remote names** besides
         `origin`.
     1. **Test master config file** (as well as CLI) for indication of:
+      1. Test **chunking/timing tasks** to avoid heap error.
       1. Ensure still getting `token`
       1. Ensure `npm-check-updates` is taking into account `ncurc` files!
       1. Which **repositories to include or exclude** (in subdirectories)
@@ -72,6 +69,9 @@ The steps that are taken are as follows:
     template with `%s` as variable for version number)) and/or
     **publishing** via `npm publish`
 1. Add **tests**
+1. Add `command-line-usage` and `ansi-to-svg` (for README) along with my
+    `ansi-to-html` fork for **automated docs**
+1. Add optional automated **license check**?
 1. Add a **confirm updates option**
 1. **Collect and report back deprecated warnings** for outdated/renamed
     packages ([not performed currently](https://github.com/tjunnone/npm-check-updates/issues/397)

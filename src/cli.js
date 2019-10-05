@@ -4,6 +4,9 @@ const {basename} = require('path');
 const os = require('os');
 
 const commandLineArgs = require('command-line-args');
+const {chunkPromises} = require('chunk-promises');
+
+const report = require('./report.js');
 
 const {
   install, audit, test,
@@ -49,7 +52,7 @@ const options = commandLineArgs([
   {name: 'version', type: Boolean, alias: 'v'},
 
   // Repos
-  {name: 'repository', type: String, alias: 'y'},
+  {name: 'repository', type: String, alias: 'y', multiple: true},
   {name: 'basePath', type: String, alias: 'b'},
   {name: 'configFile', type: String, alias: 'c'},
   {name: 'dryRun', type: Boolean},
@@ -61,7 +64,10 @@ const options = commandLineArgs([
 
   // Defaults to checking local config and then global config
   {name: 'username', type: String},
-  {name: 'password', type: String}
+  {name: 'password', type: String},
+
+  {name: 'chunkSize', type: Number},
+  {name: 'limit', type: Number}
 ]);
 
 (async () => {
@@ -97,9 +103,7 @@ if (configFile) {
 
 let repositoryPaths;
 try {
-  repositoryPaths = options.repository
-    ? [options.repository]
-    : (await findGitRepos({basePath}));
+  repositoryPaths = options.repository || (await findGitRepos({basePath}));
 } catch (err) {
   console.log('Error retrieving git repositories from basePath', basePath, err);
   return;
@@ -111,13 +115,13 @@ const skippedRepositories = [];
 const startingBranchErrors = [];
 const switchingBranchErrors = [];
 const switchingBranchBackErrors = [];
-
 // Todo: Other errors via calls to `logAndSwitchBackBranch`
-
 const pushingErrors = [];
 
-await Promise.all(
-  repositoryPaths.map(async (repositoryPath) => {
+const tasks = repositoryPaths.slice(
+  0, options.limit || repositoryPaths.length
+).map((repositoryPath) => {
+  return async () => {
     const repoFile = basename(repositoryPath);
 
     // console.log('repoFile', repositoryPath, repoFile);
@@ -371,47 +375,16 @@ await Promise.all(
     await logAndSwitchBackBranch(
       'Finished processing'
     );
-  })
-);
+  };
+});
 
 console.log('Completed all items!\n\nSUMMARY:');
 
-/**
- * Log summarized data to console.
- * @param {PlainObject} cfg
- * @param {string} cfg.message
- * @param {string[]|PlainObject[]} cfg.data
- * @returns {void}
- */
-function report ({message, data}) {
-  if (!data.length) {
-    return;
-  }
-  if (typeof data[0] === 'string') {
-    console.log(message, data.join(', '));
-  } else {
-    console.log(
-      data.reduce((s, {
-        repositoryPath, branchName: branch, remoteName, startingBranch
-      }) => {
-        s += ', ';
-        if (startingBranch) {
-          s += `Repo "${repositoryPath}"; from branch "${startingBranch}"` +
-                ` to "${branch}"`;
-        } else if (repositoryPath) {
-          s += `Repo "${repositoryPath}"`;
-          if (branch) {
-            s += `#${branch}`;
-          }
-          if (remoteName) {
-            s += ` (${remoteName})`;
-          }
-        }
-        return s;
-      }, '').slice(2)
-    );
-  }
-}
+const chunkSize = options.chunkSize === 0
+  ? tasks.length
+  : options.chunkSize || 4;
+
+await chunkPromises(tasks, chunkSize);
 
 [
   {message: 'Skipped repositories:', data: skippedRepositories},
