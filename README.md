@@ -34,6 +34,7 @@ The steps that are taken are as follows:
 
 ## To-dos
 
+1. Make as proper **binary**
 1. Make **final report of tasks completed** (at end), sorted by stage of
     final failure (if any); optionally save to status file including
     time checked and repos checked (if in sequence)
@@ -69,8 +70,8 @@ The steps that are taken are as follows:
     template with `%s` as variable for version number)) and/or
     **publishing** via `npm publish`
 1. Add **tests**
-1. Add `command-line-usage` and `ansi-to-svg` (for README) along with my
-    `ansi-to-html` fork for **automated docs**
+1. Extract out `command-line-usage`, `ansi-to-svg` and my `ansi-to-html` fork
+    usage within `git-utilities` into own repo for **auto-built docs**
 1. Add optional automated **license check**?
 1. Add a **confirm updates option**
 1. **Collect and report back deprecated warnings** for outdated/renamed

@@ -4,6 +4,8 @@ const {basename} = require('path');
 const os = require('os');
 
 const commandLineArgs = require('command-line-args');
+const commandLineUsage = require('command-line-usage');
+
 const {chunkPromises} = require('chunk-promises');
 
 const report = require('./report.js');
@@ -15,68 +17,29 @@ const {
   addUnstaged, getStaged, commit, push
 } = require('./index.js');
 
+const {optionDefinitions, cliSections} = require('./optionDefinitions.js');
+
 // Todo: Some should probably not be command line as vary per repo
-// Todo: Regex options (`filter`, `reject`) not possible?
-const options = commandLineArgs([
-  // multiple: true, defaultOption: true
-
-  {name: 'args', type: String, multiple: true},
-  {name: 'configFilePath', type: String},
-  {name: 'configFileName', type: String},
-  // Should really be `multiple`, but we'll stick with npm-check-updates
-  {name: 'dep', type: String},
-  {name: 'errorLevel', type: Number, alias: 'e'},
-  {name: 'filter', type: String, alias: 'f'},
-  {name: 'global', type: Boolean, alias: 'g'},
-  {name: 'greatest', type: Boolean, alias: 't'},
-  {name: 'interactive', type: Boolean, alias: 'i'},
-  {name: 'jsonAll', type: Boolean, alias: 'j'},
-  {name: 'jsonUpgraded', type: Boolean},
-  {name: 'loglevel', type: String, alias: 'l'},
-  {name: 'minimal', type: Boolean, alias: 'm'},
-  {name: 'newest', type: Boolean, alias: 'n'},
-  {name: 'packageData', type: Boolean},
-  {name: 'packageFile', type: String},
-  {name: 'packageManager', type: String, alias: 'p'},
-  {name: 'pre', type: Number},
-  {name: 'registry', type: String, alias: 'r'},
-  // Should really be `multiple`, but we'll stick with npm-check-updates
-  {name: 'reject', type: String, alias: 'x'},
-  {name: 'removeRange', type: Boolean},
-  {name: 'semverLevel', type: Boolean},
-  {name: 'silent', type: Boolean, alias: 's'},
-  {name: 'timeout', type: Number},
-  // {name: 'upgrade', type: Boolean, alias: 'u'}, // We will upgrade
-
-  // Not accessible programmatically?
-  {name: 'version', type: Boolean, alias: 'v'},
-
-  // Repos
-  {name: 'repository', type: String, alias: 'y', multiple: true},
-  {name: 'basePath', type: String, alias: 'b'},
-  {name: 'configFile', type: String, alias: 'c'},
-  {name: 'dryRun', type: Boolean},
-  {name: 'branchName', type: String},
-  {name: 'stayOnChangedBranch', type: Boolean},
-
-  // Git
-  {name: 'token', type: String, alias: 'o'},
-
-  // Defaults to checking local config and then global config
-  {name: 'username', type: String},
-  {name: 'password', type: String},
-
-  {name: 'chunkSize', type: Number},
-  {name: 'limit', type: Number}
-]);
+// Todo: Could convert slash-delimited strings into regexes for relevant
+//   options (`filter`, `reject`); could build on top of `command-line-args`
+//   and `command-line-usage` for standard conventional handlings of various
+//   additional types like this
+const options = commandLineArgs(optionDefinitions);
 
 (async () => {
 const {
   basePath = os.homedir(),
   configFile = basePath ? `${basePath}/update-packages.json` : null,
   authFile = basePath ? `${basePath}/.update-packages-auth.json` : null,
-  branchName = 'master'
+  branchName = 'master',
+  help = false
 } = options;
+
+if (help) {
+  const usage = commandLineUsage(cliSections);
+  console.log(usage);
+  return;
+}
 
 let updateConfig = {};
 let excludeRepositories = [], repositoriesToRemotes = {};
