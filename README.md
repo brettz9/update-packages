@@ -16,17 +16,17 @@ The steps that are taken are as follows:
         1. Switch to the targeted `branchName` (defaulting to `master`)
     1. Upon erring in any of the following non-recovering steps, switch
         back to the saved branch.
-    1. Check for npm package updates, updating if so requested
-    1. If not upgrading, stop these steps.
-    1. Attempt to run a local npm install (for the updates)
-    1. Attempt to run an npm security audit and fix any automatable
-        vulnerabilities as possible
-    1. Run an npm test against the repository package
-    1. Add any unstaged files to Git staging
-    1. Attempt local commit (without global credentials)
-    1. Upon failing, retrieve global Git config info and use for global
-        commit attempt
-    1. Push to `origin`
+      1. Check for npm package updates, updating if so requested
+      1. If not upgrading, stop these steps.
+      1. Attempt to run a local npm install (for the updates)
+      1. Attempt to run an npm security audit and fix any automatable
+          vulnerabilities as possible
+      1. Run an npm test against the repository package
+      1. Add any unstaged files to Git staging
+      1. Attempt local commit (without global credentials)
+      1. Upon failing, retrieve global Git config info and use for global
+          commit attempt
+      1. Push to `origin`
     <!--
     1. Get remote names
     1. Push to each relevant remote
