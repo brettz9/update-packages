@@ -32,6 +32,18 @@ The steps that are taken are as follows:
     1. Push to each relevant remote
     -->
 
+## Installation
+
+Globally:
+```shell
+npm install -g update-packages
+```
+
+Or locally (for development):
+```shell
+npm install -D update-packages
+```
+
 ## Command line usage
 
 [![cli.svg](https://brettz9.github.io/update-packages/cli.svg)](cli.svg)
