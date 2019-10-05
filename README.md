@@ -34,7 +34,7 @@ The steps that are taken are as follows:
 
 ## To-dos
 
-1. Make as proper **binary**
+1. Make as proper **binary**, including `update-notifier`
 1. Make **final report of tasks completed** (at end), sorted by stage of
     final failure (if any); optionally save to status file including
     time checked and repos checked (if in sequence)
