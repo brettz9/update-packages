@@ -6,6 +6,8 @@
   "scripts": {
     "eslint": "eslint --ext=js,md,html .",
     "lint": "npm run eslint",
+    "build-cli-svg": "clp --format=svg --config=src/optionDefinitions.js cli.svg",
+    "build-cli-html": "clp --format=html --config=src/optionDefinitions.js cli.html",
     "check": "node src/cli.js",
     "help": "node src/cli.js --help",
     "report": "npm run jq -- .lastUpdated ~/update-packages-report.json",

@@ -32,6 +32,14 @@ The steps that are taken are as follows:
     1. Push to each relevant remote
     -->
 
+## Command line usage
+
+[![cli.svg](https://brettz9.github.io/update-packages/cli.svg)](cli.svg)
+
+To view in HTML (for copy-pasteable commands):
+
+- [cli.html](https://brettz9.github.io/update-packages/cli.html)
+
 ## To-dos
 
 1. Make as proper **binary**

@@ -20,7 +20,9 @@ const {
   addUnstaged, getStaged, commit, push
 } = require('./index.js');
 
-const {optionDefinitions, cliSections} = require('./optionDefinitions.js');
+const {
+  definitions: optionDefinitions, sections: cliSections
+} = require('./optionDefinitions.js');
 
 (async () => {
 // check if a new version of ncu is available and print an update notification

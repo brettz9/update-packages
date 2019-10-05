@@ -68,5 +68,5 @@ const cliSections = [
   }
 ];
 
-exports.optionDefinitions = optionDefinitions;
-exports.cliSections = cliSections;
+exports.definitions = optionDefinitions;
+exports.sections = cliSections;
