@@ -13,23 +13,20 @@ const rcLoader = require('rc-config-loader');
 
 git.plugins.set('fs', fs);
 
+// https://github.com/tjunnone/npm-check-updates/pull/586
 /**
- * @param {PlainObject} cfg
- * @param {string} cfg.configFileName
- * @param {string} cfg.configFilePath
- * @returns {PlainObject|undefined} See {@link https://github.com/tjunnone/npm-check-updates}
+ * @param {PlainObject} [cfg]
+ * @param {string} [cfg.configFileName=".ncurc"]
+ * @param {string} [cfg.configFilePath]
+ * @param {string} [cfg.packageFile]
+ * @returns {PlainObject|undefined}
  */
-function getNcurc ({configFileName, configFilePath, packageFile}) {
-  // This API is only within the ncu binary, so we repeat the logic here,
-  //   minus the final formatting as CLI arguments and defaulting to
-  //   the `packageFile` directory if present; see
-  //   https://github.com/tjunnone/npm-check-updates/blob/master/bin/ncu#L58-L67
+function getNcurc ({configFileName, configFilePath, packageFile} = {}) {
   const rcFile = rcLoader('ncurc', {
     configFileName: configFileName || '.ncurc',
     defaultExtension: ['.json', '.yml', '.js'],
-    cwd: packageFile
-      ? dirname(packageFile)
-      : configFilePath || undefined
+    cwd: configFilePath ||
+    (packageFile ? dirname(packageFile) : undefined)
   });
   return rcFile && rcFile.config;
 }
@@ -77,8 +74,6 @@ exports.processUpdates = function ({
     // Any command-line option can be specified here.
 
     // Pass in user config
-    configFilePath,
-    configFileName,
     dep,
     errorLevel,
     filter,
