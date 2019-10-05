@@ -48,6 +48,7 @@ The steps that are taken are as follows:
         (e.g., to find when last queried); currently using `jq` (though
         see <https://github.com/s3u/JSONPath/issues/105> for desired
         jsonpath-plus support)?
+    1. Allow **limit** to number of Promises
 1. **Configuration**
     1. Support pushing to **multiple and alternate remote names** besides
         `origin`.
