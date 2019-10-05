@@ -36,7 +36,7 @@ The steps that are taken are as follows:
 
 1. Make **final report of tasks completed** (at end), sorted by stage of
     final failure (if any); optionally save to status file including
-    time checked and final file checked (if in sequence)
+    time checked and repos checked (if in sequence)
 1. Find an approach for **chunking/timing tasks** to avoid heap error.
     1. Break up **Promises to be sequential**
     2. **Resume** from checking pre-existing status file; check when the
