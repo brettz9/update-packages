@@ -68,7 +68,8 @@ The steps that are taken are as follows:
 1. Allow optional **`npm version`/`semver`** (which can bump version as
     appropriate per versions updated, do **tagging** (including a commit
     template with `%s` as variable for version number)) and/or
-    **publishing** via `npm publish`
+    **publishing** via `npm publish`; don't publish if `private` in
+    `package.json` is `true`
 1. Add **tests**
 1. Extract out `command-line-usage`, `ansi-to-svg` and my `ansi-to-html` fork
     usage within `git-utilities` into own repo for **auto-built docs**
