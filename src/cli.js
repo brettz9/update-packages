@@ -7,8 +7,11 @@ const commandLineArgs = require('command-line-args');
 const commandLineUsage = require('command-line-usage');
 
 const {chunkPromises} = require('chunk-promises');
+const updateNotifier = require('update-notifier');
 
 const report = require('./report.js');
+
+const pkg = require('../package.json');
 
 const {
   install, audit, test,
@@ -19,14 +22,20 @@ const {
 
 const {optionDefinitions, cliSections} = require('./optionDefinitions.js');
 
+(async () => {
+// check if a new version of ncu is available and print an update notification
+const notifier = updateNotifier({pkg});
+if (notifier.update && notifier.update.latest !== pkg.version) {
+  notifier.notify({defer: false});
+  return;
+}
+
 // Todo: Some should probably not be command line as vary per repo
 // Todo: Could convert slash-delimited strings into regexes for relevant
 //   options (`filter`, `reject`); could build on top of `command-line-args`
 //   and `command-line-usage` for standard conventional handlings of various
 //   additional types like this
 const options = commandLineArgs(optionDefinitions);
-
-(async () => {
 const {
   basePath = os.homedir(),
   configFile = basePath ? `${basePath}/update-packages.json` : null,

@@ -62,6 +62,7 @@
     "npm-check-updates": "^3.1.23",
     "parse-git-config": "^3.0.0",
     "parse-github-url": "^1.0.2",
-    "rc-config-loader": "^2.0.4"
+    "rc-config-loader": "^2.0.4",
+    "update-notifier": "^3.0.1"
   }
 }
