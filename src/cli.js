@@ -107,6 +107,15 @@ try {
 
 // console.log('repositoryPaths', repositoryPaths);
 
+const skippedRepositories = [];
+const startingBranchErrors = [];
+const switchingBranchErrors = [];
+const switchingBranchBackErrors = [];
+
+// Todo: Other errors via calls to `logAndSwitchBackBranch`
+
+const pushingErrors = [];
+
 await Promise.all(
   repositoryPaths.map(async (repositoryPath) => {
     const repoFile = basename(repositoryPath);
@@ -114,6 +123,7 @@ await Promise.all(
     // console.log('repoFile', repositoryPath, repoFile);
     if (excludeRepositories.includes(repoFile)) {
       console.log('Skipping repository', repoFile);
+      skippedRepositories.push({repositoryPath});
       return;
     }
 
@@ -123,8 +133,14 @@ await Promise.all(
 
     let startingBranch;
     let switchedBack = false;
-    const logAndSwitchBackBranch = async (...message) => {
-      console.log(...message);
+    const logAndSwitchBackBranch = async (
+      message, {errors} = {}
+    ) => {
+      if (errors) {
+        console.log(message, repositoryPath, ...errors);
+      } else {
+        console.log(message, repositoryPath);
+      }
       if (switchedBack ||
         !upgrade ||
         startingBranch === branchName ||
@@ -146,6 +162,9 @@ await Promise.all(
           'to', startingBranch,
           err
         );
+        switchingBranchBackErrors.push({
+          repositoryPath, branchName, startingBranch
+        });
       }
     };
 
@@ -156,6 +175,7 @@ await Promise.all(
         console.log(
           'Could not get starting branch for', repositoryPath, err
         );
+        startingBranchErrors.push({repositoryPath});
         return;
       }
       try {
@@ -165,6 +185,7 @@ await Promise.all(
           'Erring switching to branch of repository', repositoryPath,
           'on branch', branchName, err
         );
+        switchingBranchErrors.push({repositoryPath, branchName});
         return;
       }
     }
@@ -176,10 +197,10 @@ await Promise.all(
         packageFile: `${repositoryPath}/package.json`,
         upgrade
       });
-    } catch (err) {
+    } catch (error) {
       await logAndSwitchBackBranch(
         `Error processing npm-check-updates (with upgrade ${upgrade})`,
-        err
+        {errors: [error]}
       );
       return;
     }
@@ -194,34 +215,34 @@ await Promise.all(
     //  at this step
     try {
       await install({repositoryPath});
-    } catch (err) {
-      await logAndSwitchBackBranch('Error installing', repositoryPath, err);
+    } catch (error) {
+      await logAndSwitchBackBranch('Error installing', {errors: [error]});
       return;
     }
 
     try {
       await audit({repositoryPath, args: ['fix']});
-    } catch (err) {
+    } catch (error) {
       await logAndSwitchBackBranch(
-        'Error auditing/fixing', repositoryPath, err
+        'Error auditing/fixing', {errors: [error]}
       );
       return;
     }
 
     try {
       await test({repositoryPath});
-    } catch (err) {
+    } catch (error) {
       await logAndSwitchBackBranch(
-        'Error with test', repositoryPath, err
+        'Error with test', {errors: [error]}
       );
       return;
     }
 
     try {
       await addUnstaged({repositoryPath});
-    } catch (err) {
+    } catch (error) {
       await logAndSwitchBackBranch(
-        'Error adding unstaged files', repositoryPath, err
+        'Error adding unstaged files', {errors: [error]}
       );
       return;
     }
@@ -233,9 +254,9 @@ await Promise.all(
     let filesStaged = 0;
     try {
       filesStaged = (await getStaged({repositoryPath})).length;
-    } catch (err) {
+    } catch (error) {
       await logAndSwitchBackBranch(
-        'Warning: Error getting staged items length', repositoryPath, err
+        'Warning: Error getting staged items length', {errors: [error]}
       );
       return;
     }
@@ -256,27 +277,25 @@ await Promise.all(
               globalGitAuthorInfo.user);
           } catch (error) {
             await logAndSwitchBackBranch(
-              'No user info (for name and email) in global config and',
-              'erred with local commit',
-              err
+              'No user info (for name and email) in global config and ' +
+                'erred with local commit',
+              {errors: [err, error]}
             );
             return;
           }
           // console.log('globalGitAuthorInfo', globalGitAuthorInfo);
         } catch (error) {
           await logAndSwitchBackBranch(
-            'Error getting global Git author info',
-            error,
-            'and erred with local commit',
-            err
+            'Error getting global Git author info ' +
+              'and erred with local commit',
+            {errors: [error, err]}
           );
           return;
         }
         if (!globalGitAuthorName || !globalGitAuthorEmail) {
           await logAndSwitchBackBranch(
             'Global Git author info empty; error with local commit',
-            repositoryPath,
-            err
+            {errors: [err]}
           );
           return;
         }
@@ -287,8 +306,9 @@ await Promise.all(
           }});
         } catch (error) {
           await logAndSwitchBackBranch(
-            'Error committing with global credentials', repositoryPath, error,
-            'as with local commit', err
+            'Error committing with global credentials ' +
+              'as with local commit',
+            {errors: [err, error]}
           );
           return;
         }
@@ -307,9 +327,9 @@ await Promise.all(
     try {
       remotes = repositoriesToRemotes[repoFile] ||
         await getRemotes({repositoryPath});
-    } catch (err) {
+    } catch (error) {
       await logAndSwitchBackBranch(
-        'Error getting remotes', repositoryPath, err
+        'Error getting remotes', {errors: [error]}
       );
       return;
     }
@@ -339,18 +359,67 @@ await Promise.all(
             'Error pushing to repository', repositoryPath,
             `with remote "${remoteName}"`,
             `to branch "${branchName}"`,
-            'with token', token,
+            // 'with token', token,
             err
           );
+          pushingErrors.push({repositoryPath, branchName, remoteName});
           return undefined;
         }
         return pushed;
       })
     );
     await logAndSwitchBackBranch(
-      'Finished processing', repositoryPath
+      'Finished processing'
     );
   })
 );
-console.log('Completed all items!');
+
+console.log('Completed all items!\n\nSUMMARY:');
+
+/**
+ * Log summarized data to console.
+ * @param {PlainObject} cfg
+ * @param {string} cfg.message
+ * @param {string[]|PlainObject[]} cfg.data
+ * @returns {void}
+ */
+function report ({message, data}) {
+  if (!data.length) {
+    return;
+  }
+  if (typeof data[0] === 'string') {
+    console.log(message, data.join(', '));
+  } else {
+    console.log(
+      data.reduce((s, {
+        repositoryPath, branchName: branch, remoteName, startingBranch
+      }) => {
+        s += ', ';
+        if (startingBranch) {
+          s += `Repo "${repositoryPath}"; from branch "${startingBranch}"` +
+                ` to "${branch}"`;
+        } else if (repositoryPath) {
+          s += `Repo "${repositoryPath}"`;
+          if (branch) {
+            s += `#${branch}`;
+          }
+          if (remoteName) {
+            s += ` (${remoteName})`;
+          }
+        }
+        return s;
+      }, '').slice(2)
+    );
+  }
+}
+
+[
+  {message: 'Skipped repositories:', data: skippedRepositories},
+  {message: 'Erring in getting starting branch', data: startingBranchErrors},
+  {message: 'Erring in switching', data: switchingBranchErrors},
+  {message: 'Erring in pushing', data: pushingErrors},
+  {message: 'Erring in switching branch back', data: switchingBranchBackErrors}
+].forEach((info) => {
+  report(info);
+});
 })();
