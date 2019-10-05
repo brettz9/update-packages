@@ -91,9 +91,9 @@ To view in HTML (for copy-pasteable commands):
     **publishing** via `npm publish`; don't publish if `private` in
     `package.json` is `true`
 1. Add **tests**
+1. Add a **confirm updates option**
 1. Add optional automated **license check**, **lint fixing**, etc. (if
   `npm test` doesn't handle)?
-1. Add a **confirm updates option**
 1. **Collect and report back deprecated warnings** for outdated/renamed
     packages ([not performed currently](https://github.com/tjunnone/npm-check-updates/issues/397)
     by `npm-check-updates`); one can get info on a package with `npm view <package name> deprecated --json` (to get JSON string (e.g., `opn-cli`) or get nothing
