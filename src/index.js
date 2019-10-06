@@ -34,6 +34,7 @@ function getNcurc ({configFileName, configFilePath, packageFile} = {}) {
 exports.processUpdates = function ({
   configFilePath, // = './',
   configFileName, // = '.ncurc.{json,yml,js}',
+  cwd, // (None)
   dep, // prod|dev|peer|optional|bundle (comma-delimited)
   errorLevel, // 1|2
   filter, // comma-or-space-delimited list, or /regex/
@@ -42,6 +43,7 @@ exports.processUpdates = function ({
   greatest, // = false
   interactive, // = false
   jsonAll, // = false
+  jsonDeps, // = false
   jsonUpgraded, // = true (defaults to false in CLI)
   // = 'silent',
   // silent|error|warn|info|verbose|silly (defaults to "warn" in CLI)
@@ -52,6 +54,7 @@ exports.processUpdates = function ({
   packageFile, // = './package.json'
   packageManager, // = 'npm', // npm|bower
   pre, // 0|1
+  prefix, // (None)
   registry, // (third party registry)
   reject, // string, comma-delimited list, or regex
   removeRange, // = false
@@ -74,6 +77,7 @@ exports.processUpdates = function ({
     // Any command-line option can be specified here.
 
     // Pass in user config
+    cwd,
     dep,
     errorLevel,
     filter,
@@ -81,6 +85,7 @@ exports.processUpdates = function ({
     greatest,
     interactive,
     jsonAll,
+    jsonDeps,
     jsonUpgraded,
     loglevel,
     minimal,
@@ -89,6 +94,7 @@ exports.processUpdates = function ({
     packageFile,
     packageManager,
     pre,
+    prefix,
     registry,
     reject,
     removeRange,
