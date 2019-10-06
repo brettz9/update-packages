@@ -95,7 +95,7 @@ const skippedRepositories = [];
 const startingBranchErrors = [];
 const switchingBranchErrors = [];
 const switchingBranchBackErrors = [];
-// Todo: Other errors via calls to `logAndSwitchBackBranch`
+const miscErrors = {};
 const pushingErrors = [];
 
 const tasks = repositoryPaths.slice(
@@ -125,6 +125,10 @@ const tasks = repositoryPaths.slice(
       } else {
         console.log(message, repositoryPath);
       }
+      if (!miscErrors[message]) {
+        miscErrors[message] = [];
+      }
+      miscErrors[message].push({repositoryPath, errors});
       if (switchedBack ||
         !upgrade ||
         startingBranch === branchName ||
@@ -372,7 +376,13 @@ await chunkPromises(tasks, chunkSize);
   {message: 'Erring in switching', data: switchingBranchErrors},
   {message: 'Erring in pushing', data: pushingErrors},
   {message: 'Erring in switching branch back', data: switchingBranchBackErrors}
-].forEach((info) => {
+].forEach((info, i) => {
   report(info);
+  if (i === 2) {
+    // `miscErrors` also contains `errors`, but we don't output them here
+    Object.entries(miscErrors).forEach(([message, data]) => {
+      report({message, data});
+    });
+  }
 });
 })();

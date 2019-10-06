@@ -27,9 +27,14 @@ The steps that are taken are as follows:
       1. Upon failing, retrieve global Git config info and use for global
           commit attempt
       1. Push to `origin`
+      <!--
+      1. Get remote names
+      1. Push to each relevant remote
+      -->
+    1. Give final report of tasks completed (at end), sorted by stage of
+        final failure (if any)
     <!--
-    1. Get remote names
-    1. Push to each relevant remote
+    1. Save report for potential future querying and resumption
     -->
 
 ## Installation
@@ -54,8 +59,7 @@ To view in HTML (for copy-pasteable commands):
 
 ## To-dos
 
-1. Make **final report of tasks completed** (at end), sorted by stage of
-    final failure (if any); optionally save to status file including
+1. Save **final report of tasks completed** (at end); optionally save to status file including
     time checked and repos checked (if in sequence)
     1. Document **scripts for querying JSON** out of that report file
         (e.g., to find when last queried); currently using `jq` (though
