@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 'use strict';
 
 const {basename} = require('path');
@@ -9,7 +10,7 @@ const commandLineUsage = require('command-line-usage');
 const {chunkPromises} = require('chunk-promises');
 const updateNotifier = require('update-notifier');
 
-const report = require('./report.js');
+const report = require('../src/report.js');
 
 const pkg = require('../package.json');
 
@@ -18,11 +19,11 @@ const {
   findGitRepos, getGlobalGitAuthorInfo, getRemoteURL,
   processUpdates, switchBranch, getBranch, // getRemotes,
   addUnstaged, getStaged, commit, push
-} = require('./index.js');
+} = require('../src/index.js');
 
 const {
   definitions: optionDefinitions, sections: cliSections
-} = require('./optionDefinitions.js');
+} = require('../src/optionDefinitions.js');
 
 (async () => {
 // check if a new version of ncu is available and print an update notification
@@ -43,12 +44,17 @@ const {
   configFile = basePath ? `${basePath}/update-packages.json` : null,
   authFile = basePath ? `${basePath}/.update-packages-auth.json` : null,
   branchName = 'master',
-  help = false
+  help = false,
+  version
 } = options;
 
 if (help) {
   const usage = commandLineUsage(cliSections);
   console.log(usage);
+  return;
+}
+if (version) {
+  console.log(pkg.version);
   return;
 }
 

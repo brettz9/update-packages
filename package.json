@@ -3,13 +3,17 @@
   "version": "0.1.1",
   "description": "Update npm packages",
   "main": "src/index.js",
+  "bin": {
+    "update-packages": "./bin/cli.js"
+  },
   "scripts": {
     "eslint": "eslint --ext=js,md,html .",
     "lint": "npm run eslint",
     "build-cli-svg": "clp --format=svg --config=src/optionDefinitions.js cli.svg",
     "build-cli-html": "clp --format=html --config=src/optionDefinitions.js cli.html",
-    "check": "node src/cli.js",
-    "help": "node src/cli.js --help",
+    "check": "node ./bin/cli.js",
+    "help": "node ./bin/cli.js --help",
+    "version": "node ./bin/cli.js --version",
     "report": "npm run jq -- .lastUpdated ~/update-packages-report.json",
     "cfg-sample": "npm run jq -- .excludeRepositories ~/update-packages.json",
     "jq": "./node_modules/node-jq/bin/jq",
@@ -35,6 +39,7 @@
   },
   "devDependencies": {
     "@mysticatea/eslint-plugin": "^12.0.0",
+    "command-line-publish": "^0.1.0",
     "eslint": "^6.5.1",
     "eslint-config-ash-nazg": "^11.0.1",
     "eslint-config-standard": "^14.1.0",

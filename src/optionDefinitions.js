@@ -32,7 +32,7 @@ const optionDefinitions = [
   {name: 'timeout', type: Number},
   // {name: 'upgrade', type: Boolean, alias: 'u'}, // We will upgrade
 
-  // Not accessible programmatically?
+  // Not accessible programmatically? (and we're using our own anyways)
   {name: 'version', type: Boolean, alias: 'v'},
 
   // Repos
@@ -53,7 +53,7 @@ const optionDefinitions = [
   {name: 'chunkSize', type: Number},
   {name: 'limit', type: Number},
 
-  {name: 'help', type: Boolean}
+  {name: 'help', type: Boolean, alias: 'h'}
 ];
 
 const cliSections = [
