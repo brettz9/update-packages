@@ -63,10 +63,6 @@ To view in HTML (for copy-pasteable commands):
     repos have been checked with config/default to update past certain
     duration and their state (so non-erring ones aren't checking again),
     and if within duration, optionally still **check erring ones**, etc.)
-1. Document **scripts for querying JSON** out of report file
-    (e.g., to find when last queried); currently using `jq` (though
-    see <https://github.com/s3u/JSONPath/issues/105> for desired
-    jsonpath-plus support)?
 1. **Configuration**
     1. Support pushing to **multiple and alternate remote names** besides
         `origin`.
@@ -83,16 +79,21 @@ To view in HTML (for copy-pasteable commands):
         message, audit fix, and npm script (by default when available and as
         exceptions), but this is less critical, especially for ncu as it
         accepts config file
+    1. Allow optional **`npm version`/`semver`** (which can bump version as
+        appropriate per versions updated, do **tagging** (including a commit
+        template with `%s` as variable for version number)) and/or
+        **publishing** via `npm publish`; don't publish if `private` in
+        `package.json` is `true`
+1. Document **scripts for querying JSON** out of report file
+    (e.g., to find when last queried); currently using `jq` (though
+    see <https://github.com/s3u/JSONPath/issues/105> for desired
+    jsonpath-plus support)?
 
 ## Possible future to-dos
 
-1. Allow optional **`npm version`/`semver`** (which can bump version as
-    appropriate per versions updated, do **tagging** (including a commit
-    template with `%s` as variable for version number)) and/or
-    **publishing** via `npm publish`; don't publish if `private` in
-    `package.json` is `true`
 1. Add **tests**
 1. Add a **confirm updates option**
+1. Work with **commit hooks**
 1. Add optional automated **license check**, **lint fixing**, etc. (if
   `npm test` doesn't handle)?
 1. **Collect and report back deprecated warnings** for outdated/renamed
