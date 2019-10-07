@@ -101,7 +101,7 @@ if (configFile) {
   }
 }
 
-let reportFileObject = reportFile ? {} : null;
+let reportFileObject = reportFile ? {repositories: {}} : null;
 if (reportFile) {
   try {
     // eslint-disable-next-line global-require, import/no-dynamic-require
@@ -436,7 +436,11 @@ if (reportFileObject) {
         });
       }
       const {repositoryPath, ...data} = statuses[ky];
-      reportFileObject[repositoryPath] = {
+
+      if (!reportFileObject.repositories) {
+        reportFileObject.repositories = {};
+      }
+      reportFileObject.repositories[repositoryPath] = {
         type: ky,
         ...data
       };

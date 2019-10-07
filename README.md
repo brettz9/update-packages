@@ -59,16 +59,14 @@ To view in HTML (for copy-pasteable commands):
 
 ## To-dos
 
-1. Save **final report of tasks completed** (at end); optionally save
-    to status file sorted by repo
-    1. Document **scripts for querying JSON** out of that report file
-        (e.g., to find when last queried); currently using `jq` (though
-        see <https://github.com/s3u/JSONPath/issues/105> for desired
-        jsonpath-plus support)?
 1. **Resume** from checking pre-existing status file; check when the
     repos have been checked with config/default to update past certain
     duration and their state (so non-erring ones aren't checking again),
     and if within duration, optionally still **check erring ones**, etc.)
+1. Document **scripts for querying JSON** out of report file
+    (e.g., to find when last queried); currently using `jq` (though
+    see <https://github.com/s3u/JSONPath/issues/105> for desired
+    jsonpath-plus support)?
 1. **Configuration**
     1. Support pushing to **multiple and alternate remote names** besides
         `origin`.
