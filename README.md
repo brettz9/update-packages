@@ -88,6 +88,7 @@ To view in HTML (for copy-pasteable commands):
     (e.g., to find when last queried); currently using `jq` (though
     see <https://github.com/s3u/JSONPath/issues/105> for desired
     jsonpath-plus support)?
+1. Publish new version
 
 ## Possible future to-dos
 
