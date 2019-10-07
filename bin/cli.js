@@ -13,6 +13,7 @@ const {chunkPromises} = require('chunk-promises');
 const updateNotifier = require('update-notifier');
 
 const report = require('../src/report.js');
+const _ = require('../src/messages.json');
 
 const pkg = require('../package.json');
 
@@ -28,6 +29,17 @@ const {
 } = require('../src/optionDefinitions.js');
 
 const writeFile = util.promisify(fs.writeFile);
+
+const substitute = (str, data) => {
+  return Object.entries(data).reduce((s, [ky, val]) => {
+    // Todo: This only allows one replacement
+    return s.replace('${' + ky + '}', val);
+  }, str);
+};
+
+const log = (str, data, ...other) => {
+  console.log(substitute(str, data), ...other);
+};
 
 (async () => {
 // check if a new version of ncu is available and print an update notification
@@ -72,7 +84,7 @@ if (authFile) {
     // eslint-disable-next-line global-require, import/no-dynamic-require
     ({token: authFileToken} = require(authFile));
   } catch (err) {
-    console.log('Error', err);
+    console.log(_.error, err);
     throw new Error(`Error retrieving token file "${authFile}" \`token\`.`);
   }
 }
@@ -84,7 +96,7 @@ if (configFile) {
       excludeRepositories = [], repositoriesToRemotes = {}
     } = updateConfig);
   } catch (err) {
-    console.log('Error', err);
+    console.log(_.error, err);
     throw new Error(`Error retrieving config file "${configFile}" JSON.`);
   }
 }
@@ -95,7 +107,7 @@ if (reportFile) {
     // eslint-disable-next-line global-require, import/no-dynamic-require
     reportFileObject = require(reportFile);
   } catch (err) {
-    console.log('Error', err);
+    console.log(_.error, err);
     throw new Error(`Error retrieving report file "${reportFile}" JSON.`);
   }
 }
@@ -106,28 +118,30 @@ try {
     repository: repositoryPaths = await findGitRepos({basePath})
   } = options);
 } catch (err) {
-  console.log('Error retrieving git repositories from basePath', basePath, err);
+  console.log(_.errorRetrievingGitRepos, basePath, err);
   throw err;
 }
 
 // console.log('repositoryPaths', repositoryPaths);
 
-const skippedRepositories = [];
-const startingBranchErrors = [];
-const switchingBranchErrors = [];
-const switchingBranchBackErrors = [];
-const miscErrors = {};
-const pushingErrors = [];
-const completed = [];
+const statuses = {
+  skippedRepositories: [],
+  startingBranchErrors: [],
+  switchingBranchErrors: [],
+  switchingBranchBackErrors: [],
+  miscErrors: {},
+  pushingErrors: [],
+  completed: []
+};
 
-const getTimestamp = () => {
+const getLastCheckedTimestamp = () => {
   return {
-    checkTimestamp: new Date().getTime()
+    lastChecked: new Date().getTime()
   };
 };
 
 const addErrors = (errors, data) => {
-  errors.push({...data, ...getTimestamp()});
+  errors.push({...data, ...getLastCheckedTimestamp()});
 };
 
 const tasks = repositoryPaths.slice(
@@ -138,29 +152,30 @@ const tasks = repositoryPaths.slice(
 
     // console.log('repoFile', repositoryPath, repoFile);
     if (excludeRepositories.includes(repoFile)) {
-      console.log('Skipping repository', repoFile);
-      addErrors(skippedRepositories, {repositoryPath});
+      console.log(_.skippingRepository, repoFile);
+      addErrors(statuses.skippedRepositories, {repositoryPath});
       return;
     }
 
     // We want `upgrade` disableable, so we use a new option
     const upgrade = !options.dryRun;
-    console.log('upgrade', upgrade);
+    console.log(_.upgrade, upgrade);
 
     let startingBranch;
     let switchedBack = false;
     const logAndSwitchBackBranch = async (
-      message, {errors} = {}
+      key, {errors} = {}, data = {}
     ) => {
+      const message = substitute(_[key], data);
       if (errors) {
         console.log(message, repositoryPath, ...errors);
+        if (!statuses.miscErrors[key]) {
+          statuses.miscErrors[key] = [];
+        }
+        addErrors(statuses.miscErrors[key], {repositoryPath, errors});
       } else {
         console.log(message, repositoryPath);
       }
-      if (!miscErrors[message]) {
-        miscErrors[message] = [];
-      }
-      addErrors(miscErrors[message], {repositoryPath, errors});
       if (switchedBack ||
         !upgrade ||
         startingBranch === branchName ||
@@ -170,19 +185,18 @@ const tasks = repositoryPaths.slice(
       }
       try {
         await switchBranch({repositoryPath, branchName: startingBranch});
-        console.log(
-          'Switched branch for', repositoryPath,
-          'back to', startingBranch
+        log(
+          _.switchedBranchBack, {repositoryPath, startingBranch}
         );
         // eslint-disable-next-line require-atomic-updates
         switchedBack = true;
       } catch (err) {
-        console.log(
-          'Could not switch back branch for', repositoryPath,
-          'to', startingBranch,
+        log(
+          _.couldNotSwitchBackBranch,
+          {repositoryPath, startingBranch},
           err
         );
-        addErrors(switchingBranchBackErrors, {
+        addErrors(statuses.switchingBranchBackErrors, {
           repositoryPath, branchName, startingBranch
         });
       }
@@ -192,20 +206,20 @@ const tasks = repositoryPaths.slice(
       try {
         startingBranch = await getBranch({repositoryPath});
       } catch (err) {
-        console.log(
-          'Could not get starting branch for', repositoryPath, err
+        log(
+          'couldNotGetStartingBranch', {repositoryPath}, err
         );
-        addErrors(startingBranchErrors, {repositoryPath});
+        addErrors(statuses.startingBranchErrors, {repositoryPath});
         return;
       }
       try {
         await switchBranch({repositoryPath, branchName});
       } catch (err) {
-        console.log(
-          'Erring switching to branch of repository', repositoryPath,
-          'on branch', branchName, err
+        log(
+          'errorSwitchingToBranch',
+          {repositoryPath, branchName}, err
         );
-        addErrors(switchingBranchErrors, {repositoryPath});
+        addErrors(statuses.switchingBranchErrors, {repositoryPath});
         return;
       }
     }
@@ -219,15 +233,16 @@ const tasks = repositoryPaths.slice(
       });
     } catch (error) {
       await logAndSwitchBackBranch(
-        `Error processing npm-check-updates (with upgrade ${upgrade})`,
-        {errors: [error]}
+        'npmCheckUpdatesError',
+        {errors: [error]},
+        {upgrade}
       );
       return;
     }
 
-    console.log('dependencies to upgrade:', upgraded);
+    log(_.dependenciesToUpgrade, {upgraded});
     if (!upgrade) {
-      console.log('Finished processing (without update)', repositoryPath);
+      console.log(_.finishedProcessingNoUpdate, repositoryPath);
       return;
     }
 
@@ -236,7 +251,9 @@ const tasks = repositoryPaths.slice(
     try {
       await install({repositoryPath});
     } catch (error) {
-      await logAndSwitchBackBranch('Error installing', {errors: [error]});
+      await logAndSwitchBackBranch(
+        'installError', {errors: [error]}
+      );
       return;
     }
 
@@ -244,7 +261,7 @@ const tasks = repositoryPaths.slice(
       await audit({repositoryPath, args: ['fix']});
     } catch (error) {
       await logAndSwitchBackBranch(
-        'Error auditing/fixing', {errors: [error]}
+        'auditingOrFixError', {errors: [error]}
       );
       return;
     }
@@ -253,7 +270,7 @@ const tasks = repositoryPaths.slice(
       await test({repositoryPath});
     } catch (error) {
       await logAndSwitchBackBranch(
-        'Error with test', {errors: [error]}
+        'testError', {errors: [error]}
       );
       return;
     }
@@ -262,7 +279,7 @@ const tasks = repositoryPaths.slice(
       await addUnstaged({repositoryPath});
     } catch (error) {
       await logAndSwitchBackBranch(
-        'Error adding unstaged files', {errors: [error]}
+        'addUnstagedError', {errors: [error]}
       );
       return;
     }
@@ -276,7 +293,8 @@ const tasks = repositoryPaths.slice(
       filesStaged = (await getStaged({repositoryPath})).length;
     } catch (error) {
       await logAndSwitchBackBranch(
-        'Warning: Error getting staged items length', {errors: [error]}
+        'getStagedItemsLengthError',
+        {errors: [error]}
       );
       return;
     }
@@ -297,8 +315,7 @@ const tasks = repositoryPaths.slice(
               globalGitAuthorInfo.user);
           } catch (error) {
             await logAndSwitchBackBranch(
-              'No user info (for name and email) in global config and ' +
-                'erred with local commit',
+              'userNameEmailCommitError',
               {errors: [err, error]}
             );
             return;
@@ -306,15 +323,14 @@ const tasks = repositoryPaths.slice(
           // console.log('globalGitAuthorInfo', globalGitAuthorInfo);
         } catch (error) {
           await logAndSwitchBackBranch(
-            'Error getting global Git author info ' +
-              'and erred with local commit',
+            'getGlobalGitAuthorInfoError',
             {errors: [error, err]}
           );
           return;
         }
         if (!globalGitAuthorName || !globalGitAuthorEmail) {
           await logAndSwitchBackBranch(
-            'Global Git author info empty; error with local commit',
+            'emptyGitAuthorInfoError',
             {errors: [err]}
           );
           return;
@@ -326,8 +342,7 @@ const tasks = repositoryPaths.slice(
           }});
         } catch (error) {
           await logAndSwitchBackBranch(
-            'Error committing with global credentials ' +
-              'as with local commit',
+            'globalCredentialsCommitError',
             {errors: [err, error]}
           );
           return;
@@ -349,13 +364,13 @@ const tasks = repositoryPaths.slice(
         await getRemotes({repositoryPath});
     } catch (error) {
       await logAndSwitchBackBranch(
-        'Error getting remotes', {errors: [error]}
+        'getRemoteError', {errors: [error]}
       );
       return;
     }
     */
 
-    console.log('remotes', remotes);
+    console.log(_.remotes, remotes);
     const {
       token, username, password
     } = {...updateConfig, token: authFileToken, ...options};
@@ -365,7 +380,7 @@ const tasks = repositoryPaths.slice(
     await Promise.all(
       remotes.map(async (remoteName) => {
         const url = await getRemoteURL({repositoryPath, remoteName});
-        console.log('Attempting to push URL', url);
+        console.log(_.pushingURL, url);
 
         let pushed;
         try {
@@ -375,22 +390,22 @@ const tasks = repositoryPaths.slice(
           });
         } catch (err) {
           // No need to switch back branch here as will do below
-          console.log(
-            'Error pushing to repository', repositoryPath,
-            `with remote "${remoteName}"`,
-            `to branch "${branchName}"`,
-            // 'with token', token,
+          log(
+            _.errorPushing,
+            {repositoryPath, remoteName, branchName, token},
             err
           );
-          addErrors(pushingErrors, {repositoryPath, branchName, remoteName});
+          addErrors(statuses.pushingErrors, {
+            repositoryPath, branchName, remoteName
+          });
           return undefined;
         }
-        addErrors(completed, {repositoryPath});
+        addErrors(statuses.completed, {repositoryPath});
         return pushed;
       })
     );
     await logAndSwitchBackBranch(
-      'Finished processing'
+      'processFinished'
     );
   };
 });
@@ -401,34 +416,50 @@ const chunkSize = options.chunkSize === 0
 
 await chunkPromises(tasks, chunkSize);
 
+const results = [
+  'completed',
+  'skippedRepositories',
+  'startingBranchErrors',
+  'switchingBranchErrors',
+  'pushingErrors',
+  'switchingBranchBackErrors'
+];
+
 let reportErrorString;
 if (reportFileObject) {
   try {
+    const resultsToReportJSON = (ky) => {
+      // Inject before pushing
+      if (ky === 'pushingErrors') {
+        Object.entries(statuses.miscErrors).forEach(([key, data]) => {
+          resultsToReportJSON({key});
+        });
+      }
+      const {repositoryPath, ...data} = statuses[ky];
+      reportFileObject[repositoryPath] = {
+        type: ky,
+        ...data
+      };
+    };
+    results.forEach((key) => resultsToReportJSON(key));
     await writeFile(reportFile, JSON.stringify(reportFileObject, null, 2));
   } catch (err) {
-    console.log('Error writing to report file', err);
+    console.log(_.errorWritingReportFile, err);
     reportErrorString = `Error writing to report file`;
   }
 }
 
-console.log('Completed all items!\n\nSUMMARY:');
+console.log(_.completedSummary);
 
-[
-  {message: 'Completed items', data: completed},
-  {message: 'Skipped repositories:', data: skippedRepositories},
-  {message: 'Erring in getting starting branch', data: startingBranchErrors},
-  {message: 'Erring in switching', data: switchingBranchErrors},
-  {message: 'Erring in pushing', data: pushingErrors},
-  {message: 'Erring in switching branch back', data: switchingBranchBackErrors}
-].forEach((info, i) => {
+results.forEach((key) => {
   // Inject before pushing
-  if (info.message === 'Erring in pushing') {
+  if (key === 'pushingErrors') {
     // `miscErrors` also contains `errors`, but we don't output them here
-    Object.entries(miscErrors).forEach(([message, data]) => {
-      report({message, data});
+    Object.entries(statuses.miscErrors).forEach(([ky, data]) => {
+      report({message: _[ky], data});
     });
   }
-  report(info);
+  report({message: _[key], data: statuses[key]});
 });
 if (reportErrorString) {
   console.log(reportErrorString);
