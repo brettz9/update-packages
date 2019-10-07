@@ -120,6 +120,16 @@ const miscErrors = {};
 const pushingErrors = [];
 const completed = [];
 
+const getTimestamp = () => {
+  return {
+    checkTimestamp: new Date().getTime()
+  };
+};
+
+const addErrors = (errors, data) => {
+  errors.push({...data, ...getTimestamp()});
+};
+
 const tasks = repositoryPaths.slice(
   0, options.limit || repositoryPaths.length
 ).map((repositoryPath) => {
@@ -129,7 +139,7 @@ const tasks = repositoryPaths.slice(
     // console.log('repoFile', repositoryPath, repoFile);
     if (excludeRepositories.includes(repoFile)) {
       console.log('Skipping repository', repoFile);
-      skippedRepositories.push({repositoryPath});
+      addErrors(skippedRepositories, {repositoryPath});
       return;
     }
 
@@ -150,7 +160,7 @@ const tasks = repositoryPaths.slice(
       if (!miscErrors[message]) {
         miscErrors[message] = [];
       }
-      miscErrors[message].push({repositoryPath, errors});
+      addErrors(miscErrors[message], {repositoryPath, errors});
       if (switchedBack ||
         !upgrade ||
         startingBranch === branchName ||
@@ -172,7 +182,7 @@ const tasks = repositoryPaths.slice(
           'to', startingBranch,
           err
         );
-        switchingBranchBackErrors.push({
+        addErrors(switchingBranchBackErrors, {
           repositoryPath, branchName, startingBranch
         });
       }
@@ -185,7 +195,7 @@ const tasks = repositoryPaths.slice(
         console.log(
           'Could not get starting branch for', repositoryPath, err
         );
-        startingBranchErrors.push({repositoryPath});
+        addErrors(startingBranchErrors, {repositoryPath});
         return;
       }
       try {
@@ -195,7 +205,7 @@ const tasks = repositoryPaths.slice(
           'Erring switching to branch of repository', repositoryPath,
           'on branch', branchName, err
         );
-        switchingBranchErrors.push({repositoryPath, branchName});
+        addErrors(switchingBranchErrors, {repositoryPath});
         return;
       }
     }
@@ -372,10 +382,10 @@ const tasks = repositoryPaths.slice(
             // 'with token', token,
             err
           );
-          pushingErrors.push({repositoryPath, branchName, remoteName});
+          addErrors(pushingErrors, {repositoryPath, branchName, remoteName});
           return undefined;
         }
-        completed.push({repositoryPath});
+        addErrors(completed, {repositoryPath});
         return pushed;
       })
     );
