@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 'use strict';
 
+const fs = require('fs');
+const util = require('util');
 const {basename} = require('path');
 const os = require('os');
 
@@ -25,6 +27,8 @@ const {
   definitions: optionDefinitions, sections: cliSections
 } = require('../src/optionDefinitions.js');
 
+const writeFile = util.promisify(fs.writeFile);
+
 (async () => {
 // check if a new version of ncu is available and print an update notification
 const notifier = updateNotifier({pkg});
@@ -43,6 +47,7 @@ const {
   basePath = os.homedir(),
   configFile = basePath ? `${basePath}/update-packages.json` : null,
   authFile = basePath ? `${basePath}/.update-packages-auth.json` : null,
+  reportFile = basePath ? `${basePath}/.update-packages-report.json` : null,
   branchName = 'master',
   help = false,
   version
@@ -67,26 +72,42 @@ if (authFile) {
     // eslint-disable-next-line global-require, import/no-dynamic-require
     ({token: authFileToken} = require(authFile));
   } catch (err) {
+    console.log('Error', err);
+    throw new Error(`Error retrieving token file "${authFile}" \`token\`.`);
   }
 }
 if (configFile) {
   try {
     // eslint-disable-next-line global-require, import/no-dynamic-require
     updateConfig = require(configFile);
-    if (updateConfig) {
-      ({
-        excludeRepositories = [], repositoriesToRemotes = {}
-      } = updateConfig);
-    }
-  } catch (err) {}
+    ({
+      excludeRepositories = [], repositoriesToRemotes = {}
+    } = updateConfig);
+  } catch (err) {
+    console.log('Error', err);
+    throw new Error(`Error retrieving config file "${configFile}" JSON.`);
+  }
+}
+
+let reportFileObject = reportFile ? {} : null;
+if (reportFile) {
+  try {
+    // eslint-disable-next-line global-require, import/no-dynamic-require
+    reportFileObject = require(reportFile);
+  } catch (err) {
+    console.log('Error', err);
+    throw new Error(`Error retrieving report file "${reportFile}" JSON.`);
+  }
 }
 
 let repositoryPaths;
 try {
-  repositoryPaths = options.repository || (await findGitRepos({basePath}));
+  ({
+    repository: repositoryPaths = await findGitRepos({basePath})
+  } = options);
 } catch (err) {
   console.log('Error retrieving git repositories from basePath', basePath, err);
-  return;
+  throw err;
 }
 
 // console.log('repositoryPaths', repositoryPaths);
@@ -362,6 +383,16 @@ const tasks = repositoryPaths.slice(
   };
 });
 
+let reportErrorString;
+if (reportFileObject) {
+  try {
+    await writeFile(reportFile, JSON.stringify(reportFileObject, null, 2));
+  } catch (err) {
+    console.log('Error writing to report file', err);
+    reportErrorString = `Error writing to report file`;
+  }
+}
+
 console.log('Completed all items!\n\nSUMMARY:');
 
 const chunkSize = options.chunkSize === 0
@@ -385,4 +416,7 @@ await chunkPromises(tasks, chunkSize);
     });
   }
 });
+if (reportErrorString) {
+  console.log(reportErrorString);
+}
 })();
