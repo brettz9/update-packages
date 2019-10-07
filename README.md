@@ -83,7 +83,8 @@ To view in HTML (for copy-pasteable commands):
         appropriate per versions updated, do **tagging** (including a commit
         template with `%s` as variable for version number)) and/or
         **publishing** via `npm publish`; don't publish if `private` in
-        `package.json` is `true`
+        `package.json` is `true`; option to only version if last was
+        another versioned commit
 1. Document **scripts for querying JSON** out of report file
     (e.g., to find when last queried); currently using `jq` (though
     see <https://github.com/s3u/JSONPath/issues/105> for desired
