@@ -118,6 +118,7 @@ const switchingBranchErrors = [];
 const switchingBranchBackErrors = [];
 const miscErrors = {};
 const pushingErrors = [];
+const completed = [];
 
 const tasks = repositoryPaths.slice(
   0, options.limit || repositoryPaths.length
@@ -374,6 +375,7 @@ const tasks = repositoryPaths.slice(
           pushingErrors.push({repositoryPath, branchName, remoteName});
           return undefined;
         }
+        completed.push({repositoryPath});
         return pushed;
       })
     );
@@ -393,28 +395,30 @@ if (reportFileObject) {
   }
 }
 
-console.log('Completed all items!\n\nSUMMARY:');
-
 const chunkSize = options.chunkSize === 0
   ? tasks.length
   : options.chunkSize || 4;
 
 await chunkPromises(tasks, chunkSize);
 
+console.log('Completed all items!\n\nSUMMARY:');
+
 [
+  {message: 'Completed items', data: completed},
   {message: 'Skipped repositories:', data: skippedRepositories},
   {message: 'Erring in getting starting branch', data: startingBranchErrors},
   {message: 'Erring in switching', data: switchingBranchErrors},
   {message: 'Erring in pushing', data: pushingErrors},
   {message: 'Erring in switching branch back', data: switchingBranchBackErrors}
 ].forEach((info, i) => {
-  report(info);
-  if (i === 2) {
+  // Inject before pushing
+  if (info.message === 'Erring in pushing') {
     // `miscErrors` also contains `errors`, but we don't output them here
     Object.entries(miscErrors).forEach(([message, data]) => {
       report({message, data});
     });
   }
+  report(info);
 });
 if (reportErrorString) {
   console.log(reportErrorString);
