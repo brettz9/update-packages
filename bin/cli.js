@@ -385,6 +385,12 @@ const tasks = repositoryPaths.slice(
   };
 });
 
+const chunkSize = options.chunkSize === 0
+  ? tasks.length
+  : options.chunkSize || 4;
+
+await chunkPromises(tasks, chunkSize);
+
 let reportErrorString;
 if (reportFileObject) {
   try {
@@ -394,12 +400,6 @@ if (reportFileObject) {
     reportErrorString = `Error writing to report file`;
   }
 }
-
-const chunkSize = options.chunkSize === 0
-  ? tasks.length
-  : options.chunkSize || 4;
-
-await chunkPromises(tasks, chunkSize);
 
 console.log('Completed all items!\n\nSUMMARY:');
 
