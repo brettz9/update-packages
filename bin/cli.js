@@ -37,8 +37,8 @@ const substitute = (str, data) => {
   }, str);
 };
 
-const log = (str, data, ...other) => {
-  console.log(substitute(str, data), ...other);
+const log = (key, data, ...other) => {
+  console.log(substitute(_[key], data), ...other);
 };
 
 (async () => {
@@ -186,13 +186,13 @@ const tasks = repositoryPaths.slice(
       try {
         await switchBranch({repositoryPath, branchName: startingBranch});
         log(
-          _.switchedBranchBack, {repositoryPath, startingBranch}
+          'switchedBranchBack', {repositoryPath, startingBranch}
         );
         // eslint-disable-next-line require-atomic-updates
         switchedBack = true;
       } catch (err) {
         log(
-          _.couldNotSwitchBackBranch,
+          'couldNotSwitchBackBranch',
           {repositoryPath, startingBranch},
           err
         );
@@ -240,7 +240,7 @@ const tasks = repositoryPaths.slice(
       return;
     }
 
-    log(_.dependenciesToUpgrade, {upgraded});
+    log('dependenciesToUpgrade', {upgraded});
     if (!upgrade) {
       console.log(_.finishedProcessingNoUpdate, repositoryPath);
       return;
@@ -391,7 +391,7 @@ const tasks = repositoryPaths.slice(
         } catch (err) {
           // No need to switch back branch here as will do below
           log(
-            _.errorPushing,
+            'errorPushing',
             {repositoryPath, remoteName, branchName, token},
             err
           );
