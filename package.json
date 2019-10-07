@@ -30,9 +30,7 @@
   "author": "Brett Zamir",
   "contributors": [],
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/brettz9/update-packages/issues"
-  },
+  "bugs": "https://github.com/brettz9/update-packages/issues",
   "homepage": "https://github.com/brettz9/update-packages#readme",
   "engines": {
     "node": ">= 8.3.0"
@@ -66,7 +64,7 @@
     "isomorphic-git": "^0.67.2",
     "node-jq": "^1.10.3",
     "npm": "^6.11.3",
-    "npm-check-updates": "^3.1.23",
+    "npm-check-updates": "^3.1.24",
     "parse-git-config": "^3.0.0",
     "parse-github-url": "^1.0.2",
     "rc-config-loader": "^2.0.4",
