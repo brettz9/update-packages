@@ -59,7 +59,6 @@ To view in HTML (for copy-pasteable commands):
 
 ## To-dos
 
-1. Use `limit`
 1. Save **final report of tasks completed** (at end); optionally save
     to status file including time checked and repos checked (if in sequence),
     sorted by repo
