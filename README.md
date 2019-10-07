@@ -53,9 +53,10 @@ npm install -D update-packages
 
 [![cli.svg](https://brettz9.github.io/update-packages/cli.svg)](cli.svg)
 
-To view in HTML (for copy-pasteable commands):
+To view as non-embedded HTML or SVG files (for copy-pasteable commands):
 
 - [cli.html](https://brettz9.github.io/update-packages/cli.html)
+- [cli.svg](https://brettz9.github.io/update-packages/cli.svg)
 
 ## To-dos
 
