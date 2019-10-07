@@ -61,7 +61,7 @@ To view in HTML (for copy-pasteable commands):
 
 1. Save **final report of tasks completed** (at end); optionally save
     to status file including time checked and repos checked (if in sequence),
-    sorted by repo
+    sorted by repo; use `limit`
     1. Document **scripts for querying JSON** out of that report file
         (e.g., to find when last queried); currently using `jq` (though
         see <https://github.com/s3u/JSONPath/issues/105> for desired
