@@ -375,7 +375,10 @@ const tasks = repositoryPaths.slice(
     // Todo: Could optionally add an error to the report here, so
     //   may `skipErring`
     if (!remotes.length) {
-      log('noMatchingRemotes', {repositoryPath, foundRemotes});
+      log('noMatchingRemotes', {
+        repositoryPath,
+        foundRemotes: foundRemotes.join(_.listJoiner)
+      });
       return;
     }
 

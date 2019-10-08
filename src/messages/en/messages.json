@@ -34,5 +34,6 @@
   "switchingBranchBackErrors": "Erring in switching branch back",
   "skipErringRepository": "Skipping erring repository ${repositoryPath}",
   "skipRecentlyChecked": "Skipping recently checked repository ${repositoryPath}",
-  "noMatchingRemotes": "No matching remotes for ${repositoryPath}; found ${foundRemotes}"
+  "noMatchingRemotes": "No matching remotes for ${repositoryPath}; found ${foundRemotes}",
+  "listJoiner": ", "
 }
