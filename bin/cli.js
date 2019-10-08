@@ -412,17 +412,17 @@ const tasks = repositoryPaths.slice(
           });
           return undefined;
         }
-        addErrors('completed', {repositoryPath});
+        addErrors('completed', {repositoryPath, remoteName});
         return pushed;
       })
     );
     await logAndSwitchBackBranch(
       'processFinished'
     );
-    return undefined;
+    return 'completed';
   // eslint-disable-next-line promise/prefer-await-to-then
   })().then(async (statusKey) => {
-    if (!statusKey) {
+    if (!statusKey && options.dryRun) {
       // Wasn't able to retrieve before, so we won't try again
       return undefined;
     }
