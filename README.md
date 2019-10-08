@@ -60,7 +60,7 @@ To view as non-embedded HTML or SVG files (for copy-pasteable commands):
 
 ## To-dos
 
-1. Use repo URL from package.json instead of folder name!
+1. Option to **only apply if author** is matched (e.g., to oneself)
 1. **Configuration**
     1. Allow optional **`npm version`/`semver`** (which can bump version as
         appropriate per versions updated, do **tagging** (including a commit
