@@ -154,11 +154,13 @@ const tasks = repositoryPaths.slice(
         // Todo: `type` (see `statuses` just above) and any necessary
         //  data specific to each
         if (repoInfo.type === 'completed') {
-          if (repoInfo.lastChecked > duration + new Date().getTime()) {
-            return log('skipRecentlyChecked', {repositoryPath});
+          if (repoInfo.lastChecked + duration > new Date().getTime()) {
+            log('skipRecentlyChecked', {repositoryPath});
+            return 'skipped';
           }
         } else if (options.skipErring) {
-          return log('skipErringRepository', {repositoryPath});
+          log('skipErringRepository', {repositoryPath});
+          return 'skipped';
         }
       }
     }
@@ -422,7 +424,7 @@ const tasks = repositoryPaths.slice(
     return 'completed';
   // eslint-disable-next-line promise/prefer-await-to-then
   })().then(async (statusKey) => {
-    if (!statusKey && options.dryRun) {
+    if ((!statusKey && options.dryRun) || statusKey === 'skipped') {
       // Wasn't able to retrieve before, so we won't try again
       return undefined;
     }
