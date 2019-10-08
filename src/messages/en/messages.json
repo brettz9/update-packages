@@ -13,7 +13,7 @@
   "dependenciesToUpgrade": "dependencies to upgrade for ${repositoryPath}: ${upgraded}",
   "finishedProcessingNoUpdate": "Finished processing (without update)",
   "errorPushing": "Error pushing to repository ${repositoryPath}, with remote \"${remoteName}\", to branch \"${branchName}\"",
-  "completedSummary": "'Completed all items!\n\nSUMMARY:'",
+  "completedSummary": "Completed all items!\n\nSUMMARY:",
   "npmCheckUpdatesError": "Error processing npm-check-updates (with upgrade ${upgrade})",
   "installError": "Error installing",
   "auditingOrFixError": "Error auditing/fixing",

@@ -11,6 +11,7 @@ function report ({message, data}) {
   if (!data.length) {
     return;
   }
+  // Todo: i18nize
   if (typeof data[0] === 'string') {
     console.log(message, data.join(', '));
   } else {
@@ -32,7 +33,7 @@ function report ({message, data}) {
           }
         }
         return s;
-      }, '').slice(2)
+      }, message + ' ').slice(2)
     );
   }
 }
