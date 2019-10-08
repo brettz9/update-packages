@@ -6,18 +6,13 @@ const util = require('util');
 const {basename} = require('path');
 const os = require('os');
 
-const commandLineArgs = require('command-line-args');
-const commandLineUsage = require('command-line-usage');
-
 const {chunkPromises} = require('chunk-promises');
-const updateNotifier = require('update-notifier');
+const cliBasics = require('command-line-basics');
 
 const report = require('../src/report.js');
 
 // Todo could i18nize
 const _ = require('../src/messages/en/messages.json');
-
-const pkg = require('../package.json');
 
 const {
   install, audit, test,
@@ -25,10 +20,6 @@ const {
   processUpdates, switchBranch, getBranch, // getRemotes,
   addUnstaged, getStaged, commit, push
 } = require('../src/index.js');
-
-const {
-  definitions: optionDefinitions, sections: cliSections
-} = require('../src/optionDefinitions.js');
 
 const writeFile = util.promisify(fs.writeFile);
 
@@ -43,39 +34,27 @@ const log = (key, data, ...other) => {
   console.log(substitute(_[key], data), ...other);
 };
 
-(async () => {
-// check if a new version of ncu is available and print an update notification
-const notifier = updateNotifier({pkg});
-if (notifier.update && notifier.update.latest !== pkg.version) {
-  notifier.notify({defer: false});
+const options = cliBasics({
+  optionsPath: '../src/optionDefinitions.js',
+  cwd: __dirname
+});
+if (!options) {
   return;
 }
 
+(async () => {
 // Todo: Some should probably not be command line as vary per repo
 // Todo: Could convert slash-delimited strings into regexes for relevant
 //   options (`filter`, `reject`); could build on top of `command-line-args`
 //   and `command-line-usage` for standard conventional handlings of various
 //   additional types like this
-const options = commandLineArgs(optionDefinitions);
 const {
   basePath = os.homedir(),
   configFile = basePath ? `${basePath}/update-packages.json` : null,
   authFile = basePath ? `${basePath}/.update-packages-auth.json` : null,
   reportFile = basePath ? `${basePath}/.update-packages-report.json` : null,
-  branchName = 'master',
-  help = false,
-  version
+  branchName = 'master'
 } = options;
-
-if (help) {
-  const usage = commandLineUsage(cliSections);
-  console.log(usage);
-  return;
-}
-if (version) {
-  console.log(pkg.version);
-  return;
-}
 
 let updateConfig = {};
 let excludeRepositories = [], repositoriesToRemotes = {};
