@@ -1,7 +1,7 @@
 {
   "name": "update-packages",
   "version": "0.1.1",
-  "description": "Update npm packages",
+  "description": "Update npm packages.",
   "main": "src/index.js",
   "bin": {
     "update-packages": "./bin/cli.js"
@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "@mysticatea/eslint-plugin": "^12.0.0",
-    "command-line-publish": "^0.3.0",
+    "command-line-publish": "^0.4.0",
     "eslint": "^6.5.1",
     "eslint-config-ash-nazg": "^11.0.1",
     "eslint-config-standard": "^14.1.0",
@@ -58,7 +58,7 @@
   },
   "dependencies": {
     "chunk-promises": "^1.0.2",
-    "command-line-basics": "^0.4.1",
+    "command-line-basics": "^0.6.0",
     "git-config-path": "^2.0.0",
     "isomorphic-git": "^0.67.2",
     "node-jq": "^1.10.3",

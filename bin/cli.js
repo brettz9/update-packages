@@ -7,7 +7,7 @@ const {basename} = require('path');
 const os = require('os');
 
 const {chunkPromises} = require('chunk-promises');
-const cliBasics = require('command-line-basics');
+const {cliBasics} = require('command-line-basics');
 
 const report = require('../src/report.js');
 

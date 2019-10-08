@@ -31,9 +31,8 @@ const optionDefinitions = [
   {name: 'silent', type: Boolean, alias: 's'},
   {name: 'timeout', type: Number},
   // {name: 'upgrade', type: Boolean, alias: 'u'}, // We will upgrade
-
-  // Not accessible programmatically? (and we're using our own anyways)
-  {name: 'version', type: Boolean, alias: 'v'},
+  // version is not accessible programmatically? (and we're using our
+  //   own anyways)
 
   // Repos
   {name: 'repository', type: String, alias: 'y', multiple: true},
@@ -51,19 +50,15 @@ const optionDefinitions = [
   {name: 'password', type: String},
 
   {name: 'chunkSize', type: Number},
-  {name: 'limit', type: Number},
-
-  {name: 'help', type: Boolean, alias: 'h'}
+  {name: 'limit', type: Number}
 ];
 
 const cliSections = [
   {
-    header: 'update-packages',
     // Add italics: `{italic textToItalicize}`
-    content: 'Update npm packages.'
+    // content: '' // We get this automatically from package.json by default
   },
   {
-    header: 'Options',
     optionList: optionDefinitions
   }
 ];
