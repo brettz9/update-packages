@@ -391,33 +391,42 @@ const tasks = repositoryPaths.slice(
 
     // See https://isomorphic-git.org/docs/en/authentication.html
 
-    await Promise.all(
-      remotes.map(async (remoteName) => {
-        const url = await getRemoteURL({repositoryPath, remoteName});
-        console.log(_.pushingURL, url);
+    // Todo: We could store the result of each remote
+    try {
+      await Promise.all(
+        remotes.map(async (remoteName) => {
+          const url = await getRemoteURL({repositoryPath, remoteName});
+          console.log(_.pushingURL, url);
 
-        let pushed;
-        try {
-          pushed = await push({
-            repositoryPath, remoteName, branchName,
-            username, password, token, url
-          });
-        } catch (err) {
-          // No need to switch back branch here as will do below
-          log(
-            'errorPushing',
-            {repositoryPath, remoteName, branchName, token},
-            err
-          );
-          addErrors('pushingErrors', {
-            repositoryPath, branchName, remoteName
-          });
-          return undefined;
-        }
-        addErrors('completed', {repositoryPath, remoteName});
-        return pushed;
-      })
-    );
+          let pushed;
+          try {
+            pushed = await push({
+              repositoryPath, remoteName, branchName,
+              username, password, token, url
+            });
+          } catch (err) {
+            // No need to switch back branch here as will do below
+            log(
+              'errorPushing',
+              {repositoryPath, remoteName, branchName, token},
+              err
+            );
+            const data = {
+              repositoryPath, branchName, remoteName
+            };
+            addErrors('pushingErrors', data);
+            const error = new Error();
+            error.data = data;
+            error.type = 'pushingErrors';
+            throw error;
+          }
+          addErrors('completed', {repositoryPath, remoteName});
+          return pushed;
+        })
+      );
+    } catch (error) {
+      return error.type;
+    }
     await logAndSwitchBackBranch(
       'processFinished'
     );
