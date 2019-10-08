@@ -431,7 +431,7 @@ const tasks = repositoryPaths.slice(
       const resultsToReportJSON = (ky) => {
         const data = (Array.isArray(ky)
           ? statuses[ky[0]][ky[1]]
-          : statuses[ky]).slice(-1);
+          : statuses[ky]).slice(-1)[0];
 
         if (!reportFileObject.repositories) {
           reportFileObject.repositories = {};
