@@ -16,7 +16,7 @@ function report ({message, data}) {
     console.log(message, data.join(', '));
   } else {
     console.log(
-      data.reduce((s, {
+      message + ' ' + data.reduce((s, {
         repositoryPath, branchName: branch, remoteName, startingBranch
       }) => {
         s += ', ';
@@ -33,7 +33,7 @@ function report ({message, data}) {
           }
         }
         return s;
-      }, message + ' ').slice(2)
+      }, '').slice(2)
     );
   }
 }
