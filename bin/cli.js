@@ -444,7 +444,10 @@ const tasks = repositoryPaths.slice(
         };
       };
       resultsToReportJSON(statusKey);
-      await writeFile(reportFile, JSON.stringify(reportFileObject, null, 2));
+      await writeFile(
+        reportFile,
+        JSON.stringify(reportFileObject, null, 2) + '\n'
+      );
     } catch (err) {
       console.log(_.errorWritingReportFile, err);
       ({reportErrorString} = _);
