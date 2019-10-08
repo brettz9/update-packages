@@ -56,7 +56,6 @@ To view as non-embedded HTML or SVG files (for copy-pasteable commands):
 
 ## To-dos
 
-1. Option to **only apply if author** is matched (e.g., to oneself)
 1. **Configuration**
     1. Allow optional **`npm version`/`semver`** (which can bump version as
         appropriate per versions updated, do **tagging** (including a commit
@@ -85,11 +84,13 @@ To view as non-embedded HTML or SVG files (for copy-pasteable commands):
       1. Which **remotes to push to** if any (by default when available and as
           exceptions)
 1. Add a **confirm updates option**
-1. We could **configure by repo** the following: ncu, branch, commit
-    message, audit fix, and npm script (by default when available and as
-    exceptions), but this is less critical, especially for ncu as it
-    accepts config file
-1. Option to stop if **can't fix all security issues**
+1. Configuration
+    1. We could **configure by repo** the following: ncu, branch, commit
+        message, audit fix, and npm script (by default when available and as
+        exceptions), but this is less critical, especially for ncu as it
+        accepts config file
+    1. Option to **only apply if author** is matched (e.g., to oneself)
+    1. Option to stop if **can't fix all security issues**
 1. Work with **commit hooks**
 1. Add optional automated **license check**, **lint fixing**, etc. (if
   `npm test` doesn't handle)?
