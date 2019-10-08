@@ -60,6 +60,8 @@ To view as non-embedded HTML or SVG files (for copy-pasteable commands):
 
 ## To-dos
 
+1. Have report file be **written to as processed** in case fails or user
+    aborts.
 1. **Configuration**
     1. Allow optional **`npm version`/`semver`** (which can bump version as
         appropriate per versions updated, do **tagging** (including a commit
