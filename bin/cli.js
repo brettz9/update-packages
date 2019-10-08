@@ -429,9 +429,9 @@ const tasks = repositoryPaths.slice(
     reportFileObject = getReportFileObject();
     try {
       const resultsToReportJSON = (ky) => {
-        const {...data} = Array.isArray(statusKey)
-          ? statuses[statusKey[0]][statusKey[1]]
-          : statuses[ky];
+        const data = (Array.isArray(ky)
+          ? statuses[ky[0]][ky[1]]
+          : statuses[ky]).slice(-1);
 
         if (!reportFileObject.repositories) {
           reportFileObject.repositories = {};
