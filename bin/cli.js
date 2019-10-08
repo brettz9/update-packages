@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-return-await */
 'use strict';
 
 const fs = require('fs');
@@ -32,6 +33,7 @@ const substitute = (str, data) => {
 
 const log = (key, data, ...other) => {
   console.log(substitute(_[key], data), ...other);
+  return key;
 };
 
 const options = cliBasics({
@@ -85,17 +87,21 @@ if (configFile) {
   }
 }
 
-let reportFileObject = reportFile ? {repositories: {}} : null;
-if (reportFile) {
-  try {
-    // eslint-disable-next-line global-require, import/no-dynamic-require
-    reportFileObject = require(reportFile);
-  } catch (err) {
-    log('noReportFileFound', {reportFile});
-    // console.log(_.error, err);
-    // throw new Error(`Error retrieving report file "${reportFile}" JSON.`);
+const getReportFileObject = function () {
+  let reportFileObject = reportFile ? {repositories: {}} : null;
+  if (reportFile) {
+    try {
+      // eslint-disable-next-line global-require, import/no-dynamic-require
+      reportFileObject = require(reportFile);
+    } catch (err) {
+      log('noReportFileFound', {reportFile});
+      // console.log(_.error, err);
+      // throw new Error(`Error retrieving report file "${reportFile}" JSON.`);
+    }
   }
-}
+  return reportFileObject;
+};
+let reportFileObject = getReportFileObject();
 
 let repositoryPaths;
 try {
@@ -115,6 +121,7 @@ const statuses = {
   switchingBranchErrors: [],
   switchingBranchBackErrors: [],
   miscErrors: {},
+  noMatchingRemotes: [],
   pushingErrors: [],
   completed: []
 };
@@ -125,14 +132,18 @@ const getLastCheckedTimestamp = () => {
   };
 };
 
-const addErrors = (errors, data) => {
+const addErrors = (key, data) => {
+  const errors = statuses[key];
   errors.push({...data, ...getLastCheckedTimestamp()});
+  return key;
 };
+
+let reportErrorString;
 
 const tasks = repositoryPaths.slice(
   0, options.limit || repositoryPaths.length
 ).map((repositoryPath) => {
-  return async () => {
+  return (async () => {
     const repoFile = basename(repositoryPath);
 
     if (reportFileObject && reportFileObject.repositories) {
@@ -142,12 +153,10 @@ const tasks = repositoryPaths.slice(
         //  data specific to each
         if (repoInfo.type === 'completed') {
           if (repoInfo.lastChecked > duration + new Date().getTime()) {
-            log('skipRecentlyChecked', {repositoryPath});
-            return;
+            return log('skipRecentlyChecked', {repositoryPath});
           }
         } else if (options.skipErring) {
-          log('skipErringRepository', {repositoryPath});
-          return;
+          return log('skipErringRepository', {repositoryPath});
         }
       }
     }
@@ -155,8 +164,7 @@ const tasks = repositoryPaths.slice(
     // console.log('repoFile', repositoryPath, repoFile);
     if (excludeRepositories.includes(repoFile)) {
       console.log(_.skippingRepository, repoFile);
-      addErrors(statuses.skippedRepositories, {repositoryPath});
-      return;
+      return addErrors('skippedRepositories', {repositoryPath});
     }
 
     // We want `upgrade` disableable, so we use a new option
@@ -166,10 +174,10 @@ const tasks = repositoryPaths.slice(
     let startingBranch;
     let switchedBack = false;
     const logAndSwitchBackBranch = async (
-      key, {errors} = {}, data = {}
+      key, {errors = []} = {}, data = {}
     ) => {
       const message = substitute(_[key], data);
-      if (errors) {
+      if (errors.length) {
         console.log(message, repositoryPath, ...errors);
         if (!statuses.miscErrors[key]) {
           statuses.miscErrors[key] = [];
@@ -183,7 +191,7 @@ const tasks = repositoryPaths.slice(
         startingBranch === branchName ||
         options.stayOnChangedBranch
       ) {
-        return;
+        return ['miscErrors', key];
       }
       try {
         await switchBranch({repositoryPath, branchName: startingBranch});
@@ -198,10 +206,11 @@ const tasks = repositoryPaths.slice(
           {repositoryPath, startingBranch},
           err
         );
-        addErrors(statuses.switchingBranchBackErrors, {
+        addErrors('switchingBranchBackErrors', {
           repositoryPath, branchName, startingBranch
         });
       }
+      return ['miscErrors', key];
     };
 
     if (upgrade) {
@@ -211,8 +220,7 @@ const tasks = repositoryPaths.slice(
         log(
           'couldNotGetStartingBranch', {repositoryPath}, err
         );
-        addErrors(statuses.startingBranchErrors, {repositoryPath});
-        return;
+        return addErrors('startingBranchErrors', {repositoryPath});
       }
       try {
         await switchBranch({repositoryPath, branchName});
@@ -221,8 +229,7 @@ const tasks = repositoryPaths.slice(
           'errorSwitchingToBranch',
           {repositoryPath, branchName}, err
         );
-        addErrors(statuses.switchingBranchErrors, {repositoryPath});
-        return;
+        return addErrors('switchingBranchErrors', {repositoryPath});
       }
     }
 
@@ -234,18 +241,19 @@ const tasks = repositoryPaths.slice(
         upgrade
       });
     } catch (error) {
-      await logAndSwitchBackBranch(
+      return await logAndSwitchBackBranch(
         'npmCheckUpdatesError',
         {errors: [error]},
         {upgrade}
       );
-      return;
     }
 
-    log('dependenciesToUpgrade', {upgraded: JSON.stringify(upgraded)});
+    log('dependenciesToUpgrade', {
+      repositoryPath, upgraded: JSON.stringify(upgraded)
+    });
     if (!upgrade) {
       console.log(_.finishedProcessingNoUpdate, repositoryPath);
-      return;
+      return undefined;
     }
 
     // We install even if the upgrades were empty in case failed previously
@@ -253,37 +261,33 @@ const tasks = repositoryPaths.slice(
     try {
       await install({repositoryPath});
     } catch (error) {
-      await logAndSwitchBackBranch(
+      return await logAndSwitchBackBranch(
         'installError', {errors: [error]}
       );
-      return;
     }
 
     try {
       await audit({repositoryPath, args: ['fix']});
     } catch (error) {
-      await logAndSwitchBackBranch(
+      return await logAndSwitchBackBranch(
         'auditingOrFixError', {errors: [error]}
       );
-      return;
     }
 
     try {
       await test({repositoryPath});
     } catch (error) {
-      await logAndSwitchBackBranch(
+      return await logAndSwitchBackBranch(
         'testError', {errors: [error]}
       );
-      return;
     }
 
     try {
       await addUnstaged({repositoryPath});
     } catch (error) {
-      await logAndSwitchBackBranch(
+      return await logAndSwitchBackBranch(
         'addUnstagedError', {errors: [error]}
       );
-      return;
     }
 
     // To avoid an empty commit, we must count the staged items since
@@ -294,11 +298,10 @@ const tasks = repositoryPaths.slice(
     try {
       filesStaged = (await getStaged({repositoryPath})).length;
     } catch (error) {
-      await logAndSwitchBackBranch(
+      return await logAndSwitchBackBranch(
         'getStagedItemsLengthError',
         {errors: [error]}
       );
-      return;
     }
 
     // Since we might have failed committing last time, we do so again
@@ -316,26 +319,23 @@ const tasks = repositoryPaths.slice(
             ({name: globalGitAuthorName, email: globalGitAuthorEmail} =
               globalGitAuthorInfo.user);
           } catch (error) {
-            await logAndSwitchBackBranch(
+            return await logAndSwitchBackBranch(
               'userNameEmailCommitError',
               {errors: [err, error]}
             );
-            return;
           }
           // console.log('globalGitAuthorInfo', globalGitAuthorInfo);
         } catch (error) {
-          await logAndSwitchBackBranch(
+          return await logAndSwitchBackBranch(
             'getGlobalGitAuthorInfoError',
             {errors: [error, err]}
           );
-          return;
         }
         if (!globalGitAuthorName || !globalGitAuthorEmail) {
-          await logAndSwitchBackBranch(
+          return await logAndSwitchBackBranch(
             'emptyGitAuthorInfoError',
             {errors: [err]}
           );
-          return;
         }
         try {
           // Todo: Add updating `newVersion` and `oldVersion` for
@@ -346,11 +346,10 @@ const tasks = repositoryPaths.slice(
             email: globalGitAuthorEmail
           }});
         } catch (error) {
-          await logAndSwitchBackBranch(
+          return await logAndSwitchBackBranch(
             'globalCredentialsCommitError',
             {errors: [err, error]}
           );
-          return;
         }
       }
     }
@@ -367,20 +366,18 @@ const tasks = repositoryPaths.slice(
         });
       }
     } catch (error) {
-      await logAndSwitchBackBranch(
+      return await logAndSwitchBackBranch(
         'getRemoteError', {errors: [error]}
       );
-      return;
     }
 
-    // Todo: Could optionally add an error to the report here, so
-    //   may `skipErring`
     if (!remotes.length) {
-      log('noMatchingRemotes', {
+      await logAndSwitchBackBranch('noMatchingRemotes', {
+        errors: []
+      }, {
         repositoryPath,
         foundRemotes: foundRemotes.join(_.listJoiner)
       });
-      return;
     }
 
     console.log(_.remotes, remotes);
@@ -408,19 +405,48 @@ const tasks = repositoryPaths.slice(
             {repositoryPath, remoteName, branchName, token},
             err
           );
-          addErrors(statuses.pushingErrors, {
+          addErrors('pushingErrors', {
             repositoryPath, branchName, remoteName
           });
           return undefined;
         }
-        addErrors(statuses.completed, {repositoryPath});
+        addErrors('completed', {repositoryPath});
         return pushed;
       })
     );
     await logAndSwitchBackBranch(
       'processFinished'
     );
-  };
+    return undefined;
+  // eslint-disable-next-line promise/prefer-await-to-then
+  }).then(async (statusKey) => {
+    if (!statusKey || !reportFileObject) {
+      // Wasn't able to retrieve before, so we won't try again
+      return undefined;
+    }
+    reportFileObject = getReportFileObject();
+    try {
+      const resultsToReportJSON = (ky) => {
+        const {...data} = Array.isArray(statusKey)
+          ? statuses[statusKey[0]][statusKey[1]]
+          : statuses[ky];
+
+        if (!reportFileObject.repositories) {
+          reportFileObject.repositories = {};
+        }
+        reportFileObject.repositories[repositoryPath] = {
+          type: ky,
+          ...data
+        };
+      };
+      resultsToReportJSON(statusKey);
+      await writeFile(reportFile, JSON.stringify(reportFileObject, null, 2));
+    } catch (err) {
+      console.log(_.errorWritingReportFile, err);
+      ({reportErrorString} = _);
+    }
+    return undefined;
+  });
 });
 
 const chunkSize = options.chunkSize === 0
@@ -434,37 +460,10 @@ const results = [
   'skippedRepositories',
   'startingBranchErrors',
   'switchingBranchErrors',
+  'noMatchingRemotes',
   'pushingErrors',
   'switchingBranchBackErrors'
 ];
-
-let reportErrorString;
-if (reportFileObject) {
-  try {
-    const resultsToReportJSON = (ky) => {
-      // Inject before pushing
-      if (ky === 'pushingErrors') {
-        Object.entries(statuses.miscErrors).forEach(([key, data]) => {
-          resultsToReportJSON({key});
-        });
-      }
-      const {repositoryPath, ...data} = statuses[ky];
-
-      if (!reportFileObject.repositories) {
-        reportFileObject.repositories = {};
-      }
-      reportFileObject.repositories[repositoryPath] = {
-        type: ky,
-        ...data
-      };
-    };
-    results.forEach((key) => resultsToReportJSON(key));
-    await writeFile(reportFile, JSON.stringify(reportFileObject, null, 2));
-  } catch (err) {
-    console.log(_.errorWritingReportFile, err);
-    reportErrorString = `Error writing to report file`;
-  }
-}
 
 console.log(_.completedSummary);
 

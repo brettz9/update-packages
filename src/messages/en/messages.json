@@ -10,7 +10,7 @@
   "couldNotSwitchBackBranch": "Could not switch back branch for ${repositoryPath} to ${startingBranch}",
   "couldNotGetStartingBranch": "Could not get starting branch for ${repositoryPath}",
   "errorSwitchingToBranch": "Erring switching to branch of repository ${repositoryPath} on branch ${branchName}",
-  "dependenciesToUpgrade": "dependencies to upgrade: ${upgraded}",
+  "dependenciesToUpgrade": "dependencies to upgrade for ${repositoryPath}: ${upgraded}",
   "finishedProcessingNoUpdate": "Finished processing (without update)",
   "errorPushing": "Error pushing to repository ${repositoryPath}, with remote \"${remoteName}\", to branch \"${branchName}\"",
   "completedSummary": "'Completed all items!\n\nSUMMARY:'",
@@ -36,5 +36,6 @@
   "skipRecentlyChecked": "Skipping recently checked repository ${repositoryPath}",
   "noMatchingRemotes": "No matching remotes for ${repositoryPath}; found ${foundRemotes}",
   "listJoiner": ", ",
-  "noReportFileFound": "No report file found at ${reportFile}"
+  "noReportFileFound": "No report file found at ${reportFile}",
+  "reportErrorString": "Errors writing to report file"
 }
