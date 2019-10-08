@@ -60,6 +60,7 @@ To view as non-embedded HTML or SVG files (for copy-pasteable commands):
 
 ## To-dos
 
+1. Use repo URL from package.json instead of folder name!
 1. **Configuration**
     1. Allow optional **`npm version`/`semver`** (which can bump version as
         appropriate per versions updated, do **tagging** (including a commit
@@ -92,6 +93,7 @@ To view as non-embedded HTML or SVG files (for copy-pasteable commands):
     message, audit fix, and npm script (by default when available and as
     exceptions), but this is less critical, especially for ncu as it
     accepts config file
+1. Option to stop if **can't fix all security issues**
 1. Work with **commit hooks**
 1. Add optional automated **license check**, **lint fixing**, etc. (if
   `npm test` doesn't handle)?
