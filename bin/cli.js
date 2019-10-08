@@ -53,7 +53,8 @@ const {
   configFile = basePath ? `${basePath}/update-packages.json` : null,
   authFile = basePath ? `${basePath}/.update-packages-auth.json` : null,
   reportFile = basePath ? `${basePath}/.update-packages-report.json` : null,
-  branchName = 'master'
+  branchName = 'master',
+  duration = 1000 * 60 * 60 * 24
 } = options;
 
 let updateConfig = {};
@@ -93,11 +94,6 @@ if (reportFile) {
   }
 }
 
-// Todo: Use `reportFileObject.repositories[repositoryPath]`
-//   (`lastChecked` timestamp, `type` (for error type or
-//   `completed`; see `statuses` just below) and other data
-//   specific to each)
-
 let repositoryPaths;
 try {
   ({
@@ -135,6 +131,23 @@ const tasks = repositoryPaths.slice(
 ).map((repositoryPath) => {
   return async () => {
     const repoFile = basename(repositoryPath);
+
+    if (reportFileObject && reportFileObject.repositories) {
+      const repoInfo = reportFileObject.repositories[repositoryPath];
+      if (repoInfo) {
+        // Todo: `type` (see `statuses` just above) and any necessary
+        //  data specific to each
+        if (repoInfo.type === 'completed') {
+          if (repoInfo.lastChecked > duration + new Date().getTime()) {
+            log('skipRecentlyChecked', {repositoryPath});
+            return;
+          }
+        } else if (options.skipErring) {
+          log('skipErringRepository', {repositoryPath});
+          return;
+        }
+      }
+    }
 
     // console.log('repoFile', repositoryPath, repoFile);
     if (excludeRepositories.includes(repoFile)) {

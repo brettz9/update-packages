@@ -50,7 +50,10 @@ const optionDefinitions = [
   {name: 'password', type: String},
 
   {name: 'chunkSize', type: Number},
-  {name: 'limit', type: Number}
+  {name: 'limit', type: Number},
+  {name: 'duration', type: Number, alias: 'd'},
+
+  {name: 'skipErring', type: Boolean}
 ];
 
 const cliSections = [

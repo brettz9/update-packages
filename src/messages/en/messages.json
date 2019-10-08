@@ -31,5 +31,7 @@
   "startingBranchErrors": "Erring in getting starting branch",
   "switchingBranchErrors": "Erring in switching",
   "pushingErrors": "Erring in pushing",
-  "switchingBranchBackErrors": "Erring in switching branch back"
+  "switchingBranchBackErrors": "Erring in switching branch back",
+  "skipErringRepository": "Skipping erring repository ${repositoryPath}",
+  "skipRecentlyChecked": "Skipping recently checked repository ${repositoryPath}"
 }
