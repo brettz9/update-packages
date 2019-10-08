@@ -35,5 +35,6 @@
   "skipErringRepository": "Skipping erring repository ${repositoryPath}",
   "skipRecentlyChecked": "Skipping recently checked repository ${repositoryPath}",
   "noMatchingRemotes": "No matching remotes for ${repositoryPath}; found ${foundRemotes}",
-  "listJoiner": ", "
+  "listJoiner": ", ",
+  "noReportFileFound": "No report file found at ${reportFile}"
 }

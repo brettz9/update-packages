@@ -91,8 +91,9 @@ if (reportFile) {
     // eslint-disable-next-line global-require, import/no-dynamic-require
     reportFileObject = require(reportFile);
   } catch (err) {
-    console.log(_.error, err);
-    throw new Error(`Error retrieving report file "${reportFile}" JSON.`);
+    log('noReportFileFound', {reportFile});
+    // console.log(_.error, err);
+    // throw new Error(`Error retrieving report file "${reportFile}" JSON.`);
   }
 }
 
