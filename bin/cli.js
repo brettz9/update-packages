@@ -94,7 +94,8 @@ if (reportFile) {
 }
 
 // Todo: Use `reportFileObject.repositories[repositoryPath]`
-//   (`type` and other data)
+//   (`type` (for error type or `completed`; see `statuses` just below)
+//   and other data specific to each)
 
 let repositoryPaths;
 try {
