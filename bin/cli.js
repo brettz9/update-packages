@@ -133,7 +133,9 @@ const getLastCheckedTimestamp = () => {
 };
 
 const addErrors = (key, data) => {
-  const errors = statuses[key];
+  const errors = Array.isArray(key)
+    ? statuses[key[0]][key[1]]
+    : statuses[key];
   errors.push({...data, ...getLastCheckedTimestamp()});
   return key;
 };
@@ -182,7 +184,7 @@ const tasks = repositoryPaths.slice(
         if (!statuses.miscErrors[key]) {
           statuses.miscErrors[key] = [];
         }
-        addErrors(statuses.miscErrors[key], {repositoryPath, errors});
+        addErrors(['miscErrors', key], {repositoryPath, errors});
       } else {
         console.log(message, repositoryPath);
       }
