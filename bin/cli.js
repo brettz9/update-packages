@@ -94,8 +94,9 @@ if (reportFile) {
 }
 
 // Todo: Use `reportFileObject.repositories[repositoryPath]`
-//   (`type` (for error type or `completed`; see `statuses` just below)
-//   and other data specific to each)
+//   (`lastChecked` timestamp, `type` (for error type or
+//   `completed`; see `statuses` just below) and other data
+//   specific to each)
 
 let repositoryPaths;
 try {
