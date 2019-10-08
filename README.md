@@ -27,15 +27,11 @@ The steps that are taken are as follows:
       1. Upon failing, retrieve global Git config info and use for global
           commit attempt
       1. Push to `origin`
-      <!--
       1. Get remote names
       1. Push to each relevant remote
-      -->
-    1. Give final report of tasks completed (at end), sorted by stage of
-        final failure (if any)
-    <!--
     1. Save report for potential future querying and resumption
-    -->
+    1. After all items complete, give final report of tasks completed
+        (at end), sorted by stage of final failure (if any)
 
 ## Installation
 
