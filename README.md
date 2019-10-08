@@ -69,7 +69,6 @@ To view as non-embedded HTML or SVG files (for copy-pasteable commands):
     see <https://github.com/s3u/JSONPath/issues/105> for desired
     jsonpath-plus support)? reformat report JSON if not ideal for
     querying
-1. Publish new version
 
 ## Possible future to-dos
 
