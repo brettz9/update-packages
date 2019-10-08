@@ -242,7 +242,7 @@ const tasks = repositoryPaths.slice(
       return;
     }
 
-    log('dependenciesToUpgrade', {upgraded});
+    log('dependenciesToUpgrade', {upgraded: JSON.stringify(upgraded)});
     if (!upgrade) {
       console.log(_.finishedProcessingNoUpdate, repositoryPath);
       return;
