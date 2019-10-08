@@ -17,7 +17,7 @@ const _ = require('../src/messages/en/messages.json');
 const {
   install, audit, test,
   findGitRepos, getGlobalGitAuthorInfo, getRemoteURL,
-  processUpdates, switchBranch, getBranch, // getRemotes,
+  processUpdates, switchBranch, getBranch, getRemotes,
   addUnstaged, getStaged, commit, push
 } = require('../src/index.js');
 
@@ -54,7 +54,9 @@ const {
   authFile = basePath ? `${basePath}/.update-packages-auth.json` : null,
   reportFile = basePath ? `${basePath}/.update-packages-report.json` : null,
   branchName = 'master',
-  duration = 1000 * 60 * 60 * 24
+  duration = 1000 * 60 * 60 * 24,
+  defaultAllowedRemotes = ['origin'],
+  commitMessage = 'Updated deps or devDeps'
 } = options;
 
 let updateConfig = {};
@@ -335,7 +337,10 @@ const tasks = repositoryPaths.slice(
           return;
         }
         try {
-          await commit({repositoryPath, author: {
+          // Todo: Add updating `newVersion` and `oldVersion` for
+          //  substitution here, as well as devDep vs. dep.
+          const message = substitute(commitMessage, {});
+          await commit({repositoryPath, message, author: {
             name: globalGitAuthorName,
             email: globalGitAuthorEmail
           }});
@@ -351,23 +356,28 @@ const tasks = repositoryPaths.slice(
 
     console.log('repositoriesToRemotes', repositoriesToRemotes);
 
-    // Todo: Allow multiple remote retrieval as below but filter
-    //   after getting list based on user's preferences (e.g., to push
-    //   to `upstream` if present, or to take into account
-    //   exclusions/inclusions by repo)
-    const remotes = ['origin'];
-    /*
-    let remotes;
+    let remotes, foundRemotes = '';
     try {
-      remotes = repositoriesToRemotes[repoFile] ||
-        await getRemotes({repositoryPath});
+      remotes = repositoriesToRemotes[repoFile];
+      if (!remotes || !remotes.length) {
+        foundRemotes = await getRemotes({repositoryPath});
+        remotes = foundRemotes.filter((remote) => {
+          return defaultAllowedRemotes.includes(remote);
+        });
+      }
     } catch (error) {
       await logAndSwitchBackBranch(
         'getRemoteError', {errors: [error]}
       );
       return;
     }
-    */
+
+    // Todo: Could optionally add an error to the report here, so
+    //   may `skipErring`
+    if (!remotes.length) {
+      log('noMatchingRemotes', {repositoryPath, foundRemotes});
+      return;
+    }
 
     console.log(_.remotes, remotes);
     const {

@@ -53,7 +53,10 @@ const optionDefinitions = [
   {name: 'limit', type: Number},
   {name: 'duration', type: Number, alias: 'd'},
 
-  {name: 'skipErring', type: Boolean}
+  {name: 'skipErring', type: Boolean},
+
+  {name: 'remote', type: String, multiple: true},
+  {name: 'commitMessage', type: String}
 ];
 
 const cliSections = [

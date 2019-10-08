@@ -61,40 +61,41 @@ To view as non-embedded HTML or SVG files (for copy-pasteable commands):
 ## To-dos
 
 1. **Configuration**
-    1. Support pushing to **multiple and alternate remote names** besides
-        `origin`.
+    1. Allow optional **`npm version`/`semver`** (which can bump version as
+        appropriate per versions updated, do **tagging** (including a commit
+        template with `%s` as variable for version number)) and/or
+        **publishing** via `npm publish`; don't publish if `private` in
+        `package.json` is `true`; option to only version if last was
+        another versioned commit; allow adding old and resulting version
+        to commit message as well as devDep vs. dep.
+1. Document **scripts for querying JSON** out of report file
+    (e.g., to find when last queried); currently using `jq` (though
+    see <https://github.com/s3u/JSONPath/issues/105> for desired
+    jsonpath-plus support)? reformat report JSON if not ideal for
+    querying
+1. Publish new version
+
+## Possible future to-dos
+
+1. Add **tests**
     1. **Test master config file** (as well as CLI) for indication of:
+      1. Test pushing to **multiple and alternate remote names** besides
+          `origin`.
       1. Test **chunking/timing tasks** to avoid heap error.
       1. Ensure still getting `token`
       1. Ensure `npm-check-updates` is taking into account `ncurc` files!
       1. Which **repositories to include or exclude** (in subdirectories)
       1. Which **remotes to push to** if any (by default when available and as
           exceptions)
-    1. Add **global commit message** option (with template on info re: devDep
-        vs. dep.?) and npm script to run (in place of test)
-    1. We could **configure by repo** the following: ncu, branch, commit
-        message, audit fix, and npm script (by default when available and as
-        exceptions), but this is less critical, especially for ncu as it
-        accepts config file
-    1. Allow optional **`npm version`/`semver`** (which can bump version as
-        appropriate per versions updated, do **tagging** (including a commit
-        template with `%s` as variable for version number)) and/or
-        **publishing** via `npm publish`; don't publish if `private` in
-        `package.json` is `true`; option to only version if last was
-        another versioned commit
-1. Document **scripts for querying JSON** out of report file
-    (e.g., to find when last queried); currently using `jq` (though
-    see <https://github.com/s3u/JSONPath/issues/105> for desired
-    jsonpath-plus support)?
-1. Publish new version
-
-## Possible future to-dos
-
-1. Add **tests**
 1. Add a **confirm updates option**
+1. We could **configure by repo** the following: ncu, branch, commit
+    message, audit fix, and npm script (by default when available and as
+    exceptions), but this is less critical, especially for ncu as it
+    accepts config file
 1. Work with **commit hooks**
 1. Add optional automated **license check**, **lint fixing**, etc. (if
   `npm test` doesn't handle)?
+    1. Allow npm script to run (in place of test)
 1. **Collect and report back deprecated warnings** for outdated/renamed
     packages ([not performed currently](https://github.com/tjunnone/npm-check-updates/issues/397)
     by `npm-check-updates`); one can get info on a package with `npm view <package name> deprecated --json` (to get JSON string (e.g., `opn-cli`) or get nothing
