@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "@mysticatea/eslint-plugin": "^12.0.0",
-    "command-line-publish": "^0.1.0",
+    "command-line-publish": "^0.2.0",
     "eslint": "^6.5.1",
     "eslint-config-ash-nazg": "^11.0.1",
     "eslint-config-standard": "^14.1.0",
@@ -58,7 +58,7 @@
   },
   "dependencies": {
     "chunk-promises": "^1.0.2",
-    "command-line-basics": "^0.4.0",
+    "command-line-basics": "^0.4.1",
     "git-config-path": "^2.0.0",
     "isomorphic-git": "^0.67.2",
     "node-jq": "^1.10.3",
