@@ -376,7 +376,7 @@ const tasks = repositoryPaths.slice(
     }
 
     if (!remotes.length) {
-      await logAndSwitchBackBranch('noMatchingRemotes', {
+      return await logAndSwitchBackBranch('noMatchingRemotes', {
         errors: []
       }, {
         repositoryPath,
