@@ -420,7 +420,7 @@ const tasks = repositoryPaths.slice(
     return undefined;
   // eslint-disable-next-line promise/prefer-await-to-then
   })().then(async (statusKey) => {
-    if (!statusKey || !reportFileObject) {
+    if (!statusKey) {
       // Wasn't able to retrieve before, so we won't try again
       return undefined;
     }
