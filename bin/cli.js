@@ -13,7 +13,9 @@ const {chunkPromises} = require('chunk-promises');
 const updateNotifier = require('update-notifier');
 
 const report = require('../src/report.js');
-const _ = require('../src/messages.json');
+
+// Todo could i18nize
+const _ = require('../src/messages/en/messages.json');
 
 const pkg = require('../package.json');
 

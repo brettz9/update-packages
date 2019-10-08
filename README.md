@@ -60,10 +60,10 @@ To view as non-embedded HTML or SVG files (for copy-pasteable commands):
 
 ## To-dos
 
-1. **Resume** from checking pre-existing status file; check when the
-    repos have been checked with config/default to update past certain
-    duration and their state (so non-erring ones aren't checking again),
-    and if within duration, optionally still **check erring ones**, etc.)
+1. **Resume** check when the repos have been checked with config/default
+    to update past certain duration and their state (so non-erring ones
+    aren't checking again), and if within duration, optionally still
+    **check erring ones**, etc.)
 1. **Configuration**
     1. Support pushing to **multiple and alternate remote names** besides
         `origin`.
