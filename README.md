@@ -103,3 +103,6 @@ To view as non-embedded HTML or SVG files (for copy-pasteable commands):
     so as to regularly poll for security updates and upon encountering one
     which was in a cached map of dependencies, would attempt to commit an
     update to that repo.
+1. Could tap into <https://github.com/npm/registry/blob/master/docs/follower.md>
+    (after caching info on all package-lock.json files) for auto-updating when
+    changes to our repositories occur.
