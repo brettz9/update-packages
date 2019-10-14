@@ -84,6 +84,7 @@ To view as non-embedded HTML or SVG files (for copy-pasteable commands):
           exceptions)
 1. Add a **confirm updates option**
 1. Configuration
+    1. Option to only perform operations if **branch isn't switched**
     1. We could **configure by repo** the following: ncu, branch, commit
         message, audit fix, and npm script (by default when available and as
         exceptions), but this is less critical, especially for ncu as it
