@@ -1,1 +1,4 @@
 node_modules
+.update-packages-auth.json
+.update-packages-report.json
+update-packages.json
