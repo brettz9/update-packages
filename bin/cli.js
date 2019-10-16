@@ -28,10 +28,10 @@ const substitute = (str, data) => {
   return Object.entries(data).reduce((s, [ky, val]) => {
     // Todo: This only allows one replacement
     return s.replace('${' + ky + '}', val);
-  }, str);
+  }, str) || str;
 };
 
-const log = (key, data, ...other) => {
+const log = (key, data = {}, ...other) => {
   console.log(substitute(_[key], data), ...other);
   return key;
 };
