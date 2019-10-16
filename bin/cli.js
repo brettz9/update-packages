@@ -12,7 +12,7 @@ const {cliBasics} = require('command-line-basics');
 
 const report = require('../src/report.js');
 
-// Todo could i18nize
+// Todo: could i18nize
 const _ = require('../src/messages/en/messages.json');
 
 const {
