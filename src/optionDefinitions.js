@@ -62,7 +62,7 @@ const optionDefinitions = [
 const cliSections = [
   {
     // Add italics: `{italic textToItalicize}`
-    // content: '' // We get this automatically from package.json by default
+    // content: '' // We get this automatically from `package.json` by default
   },
   {
     optionList: optionDefinitions
