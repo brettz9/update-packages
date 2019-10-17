@@ -1,5 +1,9 @@
 # CHANGES for update-packages
 
+## ?
+
+- npm: Update devs (chunk-promises, isomorphic-git, npm) and devDeps
+
 ## 0.2.0
 
 - Feature: Make genuine binary
