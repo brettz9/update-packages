@@ -2,7 +2,7 @@
 
 ## ?
 
-- npm: Update devs (chunk-promises, isomorphic-git, npm) and devDeps
+- npm: Update deps (chunk-promises, isomorphic-git, npm) and devDeps
 
 ## 0.2.0
 
