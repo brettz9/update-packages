@@ -9,7 +9,7 @@ const parseGithubURL = require('parse-github-url');
 const getGitConfigPath = require('git-config-path');
 
 const ncu = require('npm-check-updates');
-const rcLoader = require('rc-config-loader');
+const {rcFile} = require('rc-config-loader');
 
 git.plugins.set('fs', fs);
 
@@ -22,13 +22,13 @@ git.plugins.set('fs', fs);
  * @returns {PlainObject|undefined}
  */
 function getNcurc ({configFileName, configFilePath, packageFile} = {}) {
-  const rcFile = rcLoader('ncurc', {
+  const rcfile = rcFile('ncurc', {
     configFileName: configFileName || '.ncurc',
     defaultExtension: ['.json', '.yml', '.js'],
     cwd: configFilePath ||
     (packageFile ? dirname(packageFile) : undefined)
   });
-  return rcFile && rcFile.config;
+  return rcfile && rcfile.config;
 }
 
 exports.processUpdates = function ({
