@@ -61,7 +61,7 @@
     "chunk-promises": "^1.0.3",
     "command-line-basics": "^0.6.2",
     "git-config-path": "^2.0.0",
-    "isomorphic-git": "^0.72.0",
+    "isomorphic-git": "^1.8.2",
     "node-jq": "^1.11.0",
     "npm": "^6.13.4",
     "npm-check-updates": "^4.0.1",
